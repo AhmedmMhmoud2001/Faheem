@@ -9,6 +9,11 @@ const Navbar = () => {
     const navigate = useNavigate();
     const { isLoggedIn, user, logout } = useAuth();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [lang, setLang] = useState('ar');
+
+    const toggleLang = () => {
+        setLang(prev => prev === 'ar' ? 'en' : 'ar');
+    };
 
     const navLinks = [
         { name: 'الرئيسية', path: '/' },
@@ -81,10 +86,13 @@ const Navbar = () => {
                                         <span>تسجيل الدخول</span>
                                     </button>
                                 )}
-                                <div className="flex items-center gap-2 text-slate-500 cursor-pointer hover:text-slate-900 transition-colors border-l border-slate-200 pl-6">
-                                    <Globe size={18} />
-                                    <span className="font-bold">عر</span>
-                                </div>
+                                <button
+                                    onClick={toggleLang}
+                                    className="flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-colors border-l border-slate-200 pl-6 group"
+                                >
+                                    <Globe size={18} className="group-hover:text-[#FFD131]" />
+                                    <span className="font-bold uppercase">{lang === 'ar' ? 'En' : 'عربي'}</span>
+                                </button>
                             </div>
 
                             {/* Mobile Toggle */}
@@ -168,10 +176,13 @@ const Navbar = () => {
                                 <LogIn size={24} />
                             </button>
                         )}
-                        <div className="flex items-center justify-center gap-3 text-slate-500 font-black text-lg">
+                        <button
+                            onClick={toggleLang}
+                            className="w-full flex items-center justify-center gap-3 text-slate-500 hover:text-slate-900 font-black text-lg p-3 rounded-2xl bg-slate-50 transition-colors"
+                        >
                             <Globe size={20} />
-                            <span>العربية</span>
-                        </div>
+                            <span>{lang === 'ar' ? 'In English' : 'باللغة العربية'}</span>
+                        </button>
                     </div>
                 </div>
             </div>

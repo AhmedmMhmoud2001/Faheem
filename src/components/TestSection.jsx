@@ -2,7 +2,10 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Container from './Container';
-import { Users, FileText, ClipboardCheck, BookOpen } from 'lucide-react';
+import { FileText, ClipboardCheck, BookOpen } from 'lucide-react';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Autoplay } from 'swiper/modules';
+import 'swiper/css';
 
 const TestSection = () => {
     const navigate = useNavigate();
@@ -20,25 +23,36 @@ const TestSection = () => {
         <section className="bg-slate-50/30 py-4 md:py-6" dir="rtl">
             <Container>
                 {/* Stats Bar */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 m-12">
-                    {[
-
-
-                        { label: 'سؤال', value: '+1000', Icon: FileText },
-                        { label: 'محاكي للإمتحان الكمية', value: '100%', Icon: ClipboardCheck },
-                        { label: 'مواضيع', value: '4', Icon: BookOpen },
-                    ].map((stat, idx) => (
-                        <div key={idx} className="rounded-3xl p-2 flex flex-row-reverse items-center justify-center sm:justify-center group hover:bg-yellow-400 transition-all duration-300">
-
-                            <div className="text-right">
-                                <div className="text-2xl md:text-3xl font-black text-slate-900 group-hover:text-slate-900">{stat.value}</div>
-                                <div className="text-slate-400 font-bold text-xs md:text-sm group-hover:text-slate-800">{stat.label}</div>
-                            </div>
-                            <div className="w-12 h-12 md:w-16 md:h-16 bg-slate-900 p-2 m-2 md:m-3 rounded-2xl flex items-center justify-center text-white group-hover:bg-slate-900 group-hover:text-yellow-400 transition-all">
-                                <stat.Icon size={22} className="md:w-7 md:h-7" />
-                            </div>
-                        </div>
-                    ))}
+                <div className="mb-12">
+                    <Swiper
+                        modules={[Autoplay]}
+                        spaceBetween={24}
+                        slidesPerView={1}
+                        autoplay={{ delay: 3000, disableOnInteraction: false }}
+                        breakpoints={{
+                            640: { slidesPerView: 3 },
+                            1024: { slidesPerView: 3 }
+                        }}
+                        className="py-4"
+                    >
+                        {[
+                            { label: 'سؤال', value: '+1000', Icon: FileText },
+                            { label: 'محاكي للإمتحان الكمية', value: '100%', Icon: ClipboardCheck },
+                            { label: 'مواضيع', value: '4', Icon: BookOpen },
+                        ].map((stat, idx) => (
+                            <SwiperSlide key={idx}>
+                                <div className="rounded-3xl p-2 flex flex-row-reverse items-center justify-center group hover:bg-yellow-400 transition-all duration-300 bg-white shadow-sm md:shadow-none">
+                                    <div className="text-right">
+                                        <div className="text-2xl md:text-3xl font-black text-slate-900 group-hover:text-slate-900">{stat.value}</div>
+                                        <div className="text-slate-400 font-bold text-xs md:text-sm group-hover:text-slate-800">{stat.label}</div>
+                                    </div>
+                                    <div className="w-12 h-12 md:w-16 md:h-16 bg-slate-900 p-2 m-2 md:m-3 rounded-2xl flex items-center justify-center text-white group-hover:bg-slate-900 group-hover:text-yellow-400 transition-all">
+                                        <stat.Icon size={22} className="md:w-7 md:h-7" />
+                                    </div>
+                                </div>
+                            </SwiperSlide>
+                        ))}
+                    </Swiper>
                 </div>
 
                 {/* Main Card */}
