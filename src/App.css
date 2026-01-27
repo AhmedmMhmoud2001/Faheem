@@ -1,0 +1,14 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Alexandria:wght@100..900&family=Tajawal:wght@200;300;400;500;700;800;900&display=swap');
+
+#root {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  margin: 0;
+  font-family: 'Tajawal', 'Alexandria', sans-serif;
+  overflow-x: hidden;
+}
