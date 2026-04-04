@@ -1,0 +1,337 @@
+{
+  "meta": {
+    "title": "Al Faheem | Leading learning platform"
+  },
+  "nav": {
+    "home": "Home",
+    "subscriptions": "Subscriptions",
+    "stages": "Stages",
+    "about": "About Al Faheem",
+    "contact": "Contact us",
+    "logout": "Log out",
+    "login": "Log in",
+    "switchToEn": "En",
+    "switchToAr": "عربي",
+    "inEnglish": "In English",
+    "inArabic": "In Arabic"
+  },
+  "hero": {
+    "title": "Learn anytime, anywhere!",
+    "subtitle": "Access hundreds of high-quality training courses led by professional instructors, designed to help you master new skills, grow your knowledge, and open more opportunities to reach your personal goals.",
+    "howItWorks": "How it works?",
+    "startNow": "Get started",
+    "laptopAlt": "Al Faheem learning platform"
+  },
+  "home": {
+    "whyUsTitle": "What makes us different?",
+    "whyUs1": "Unlimited practice tests",
+    "whyUs2": "7-day free trial",
+    "whyUs3": "Detailed performance reports",
+    "whyUs4": "Full access to all questions"
+  },
+  "testSection": {
+    "statQuestions": "Questions",
+    "statQuant": "Quant exam simulator",
+    "statTopics": "Topics",
+    "title": "Test yourself and find your level",
+    "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.",
+    "cta": "Start the test now",
+    "imageAlt": "Level assessment"
+  },
+  "about": {
+    "badge": "+20 years of experience",
+    "title": "Al Faheem",
+    "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+    "imageAlt": "About Al Faheem platform"
+  },
+  "video": {
+    "title": "How does our platform work for students?",
+    "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.",
+    "thumbAlt": "Video thumbnail"
+  },
+  "faq": {
+    "title": "Frequently asked questions",
+    "titleHighlight": "Questions",
+    "titleRest": " most asked",
+    "intro": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt.",
+    "q1": "Lorem ipsum dolor sit amet, consectetur adipiscing elit?",
+    "a1": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+  },
+  "contact": {
+    "title": "Contact us",
+    "intro": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus feugiat velit id auctor. Sagittis donic cursus.",
+    "formTitle": "Send a message",
+    "name": "Name",
+    "email": "Email",
+    "message": "Message",
+    "send": "Send",
+    "sending": "Sending...",
+    "success": "Sent successfully!",
+    "follow": "Follow us:",
+    "sendError": "Could not send the message. Please try again later."
+  },
+  "testimonials": {
+    "title": "What our students say",
+    "subtitle": "Hear from students who succeeded with commitment and strong engagement through our online training platform.",
+    "reviews": {
+      "0": { "name": "Rania Abdullah", "role": "High school", "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua." },
+      "1": { "name": "Ahmed Mohammed", "role": "High school", "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua." },
+      "2": { "name": "Sara Ahmed", "role": "High school", "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua." },
+      "3": { "name": "Mahmoud Khaled", "role": "High school", "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua." },
+      "4": { "name": "Nour Al Huda", "role": "High school", "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua." }
+    }
+  },
+  "footer": {
+    "about": "The leading B2B marketplace between factories and traders: list wholesale products, negotiate directly with buyers, and close deals safely—with shipping follow-up and payment protection at every step.",
+    "myAccount": "My account",
+    "company": "Company",
+    "contactUs": "Contact us",
+    "links": {
+      "account": "My account",
+      "returns": "Returns center",
+      "orders": "Purchases & orders",
+      "tickets": "Support tickets",
+      "track": "Track order",
+      "supportCenter": "Support center",
+      "payment": "Payment methods",
+      "aboutUs": "About us",
+      "delivery": "Delivery information",
+      "privacy": "Privacy policy",
+      "terms": "Terms & conditions",
+      "contact": "Contact us",
+      "careers": "Careers"
+    },
+    "address": "Address: 502 New Design Street, Melbourne, San Francisco, CA 94110, United States",
+    "hours": "Hours: 8:00 AM – 5:00 PM, Monday to Saturday",
+    "copyright": "Copyright © 2025 {{brand}} | All Rights Reserved"
+  },
+  "login": {
+    "title": "Sign in",
+    "subtitle": "Phone number or email",
+    "emailPlaceholder": "Email",
+    "password": "Password",
+    "remember": "Remember me",
+    "forgot": "Forgot password?",
+    "submit": "Log in",
+    "loading": "Loading...",
+    "terms": "By signing up, you agree to our <terms>Terms of Service</terms> and <privacy>Privacy Policy</privacy>.",
+    "noAccount": "Don't have an account?",
+    "register": "Create account",
+    "slogan": "Slogan",
+    "fail": "Login failed",
+    "feature1": "7-day free trial",
+    "feature2": "Full access to all questions",
+    "feature3": "Unlimited practice tests",
+    "feature4": "Detailed performance reports"
+  },
+  "forgotPassword": {
+    "title": "Forgot your password?",
+    "subtitle": "Enter your email address and we'll send you a verification code.",
+    "placeholder": "Email address",
+    "resend": "Didn't get the code? Resend",
+    "submit": "Send",
+    "error": "Please check your email address and try again.",
+    "logoAlt": "Al Faheem",
+    "backToLogin": "Back to sign in"
+  },
+  "dashboard": {
+    "welcome": "Welcome, {{name}}!",
+    "guest": "Guest",
+    "trialTitle": "Free trial",
+    "trialDays": "{{count}} day(s) left",
+    "subscribe": "Subscribe now",
+    "solveTitle": "Solve questions",
+    "solveDesc": "Pick a topic and start practicing",
+    "trialCardTitle": "Trial test",
+    "trialCardDesc": "Contains 24 questions",
+    "subscriptionsCardTitle": "Subscriptions",
+    "subscriptionsCardDesc": "View plans and upgrade your account",
+    "subscriptionsStatusActive": "Active subscription — {{plan}}",
+    "subscriptionsStatusTrial": "Free trial active",
+    "subscriptionsStatusNone": "No paid subscription",
+    "progressTitle": "Track your progress in every subject!",
+    "notStarted": "Not started yet"
+  },
+  "subscriptionsPage": {
+    "title": "Subscribe with us!",
+    "backToDashboard": "Back to dashboard",
+    "activeTitle": "You have an active subscription",
+    "activeBody": "Continue training and tests from your dashboard.",
+    "trialTitle": "You are on a free trial",
+    "trialDaysLeft": "{{count}} day(s) left on your trial.",
+    "planLabel": "Plan: {{slug}}",
+    "openDashboard": "Open dashboard",
+    "faqTitle": "Frequently asked questions",
+    "faqEmpty": "No subscription or payment FAQs are available yet.",
+    "subscribeCta": "Subscribe now!",
+    "taxNote": "Prices shown are exclusive of tax"
+  },
+  "trialTest": {
+    "title": "Full practice test",
+    "subtitle": "Try a complete test that mirrors the real exam experience",
+    "instructionsTitle": "Test instructions",
+    "features": [
+      {
+        "value": "24 questions",
+        "description": "A comprehensive test covering all topics"
+      },
+      {
+        "value": "45 minutes",
+        "description": "A timed session like the real exam"
+      },
+      {
+        "value": "Mixed difficulty",
+        "description": "Questions across all difficulty levels"
+      },
+      {
+        "value": "Detailed report",
+        "description": "In-depth analysis of your performance and results"
+      }
+    ],
+    "instructions": [
+      "The test has 24 questions from different topics and difficulty levels",
+      "You have 45 minutes to complete the test",
+      "You can move between questions during the test",
+      "When time runs out, your answers will be submitted automatically",
+      "You will get a detailed report when you finish"
+    ],
+    "start": "Start test",
+    "starting": "Loading...",
+    "tip": "Tip: make sure you have enough time and a distraction-free space before you start",
+    "startError": "Could not start the test. Sign in and check your subscription or free trial."
+  },
+  "examResult": {
+    "scorePrefix": "You scored",
+    "scoreMid": "out of",
+    "scoreSuffix": "correct",
+    "intro": "This was a practice run. Keep training to improve — review mistakes and use explanations to close gaps.",
+    "notesTitle": "Notes",
+    "noteBody": "Good effort. If you need more practice, keep working through topics and questions until you feel confident for the real exam.",
+    "yourAnswers": "Your answers",
+    "wrongCount": "{{count}} wrong",
+    "wrongHint": "Focus on weak areas",
+    "correctCount": "{{count}} correct",
+    "correctHint": "Nice work on what you got right",
+    "backHome": "Back to home",
+    "retry": "Try again",
+    "dotCorrect": "Correct",
+    "dotWrong": "Wrong",
+    "dotTitle": "Question {{n}}: {{status}}"
+  },
+  "profile": {
+    "tabs": {
+      "editProfile": "Edit profile",
+      "progress": "My progress",
+      "errorLog": "Mistake log",
+      "settings": "Settings"
+    },
+    "loadError": "Could not load your profile.",
+    "loading": "Loading…",
+    "photo": {
+      "sectionTitle": "Profile photo",
+      "change": "Change photo",
+      "remove": "Remove photo",
+      "hint": "Allowed: JPEG, PNG, WebP — up to 10 MB",
+      "updated": "Photo updated.",
+      "uploadFail": "Upload failed. Check your connection and sign-in.",
+      "removeConfirm": "Remove profile photo?",
+      "removed": "Photo removed.",
+      "removeFail": "Could not remove the photo."
+    },
+    "form": {
+      "basicTitle": "Basic information",
+      "fullName": "Full name",
+      "email": "Email",
+      "emailLocked": "Email cannot be changed here.",
+      "phone": "Phone",
+      "phonePlaceholder": "Optional",
+      "save": "Save changes",
+      "saving": "Saving…",
+      "saved": "Changes saved.",
+      "saveFail": "Could not save changes."
+    },
+    "security": {
+      "caption": "Security",
+      "changePassword": "Change password",
+      "current": "Current password",
+      "new": "New password (at least 8 characters)",
+      "confirm": "Confirm new password",
+      "submit": "Update password",
+      "submitting": "Updating…",
+      "shortPassword": "New password must be at least 8 characters.",
+      "mismatch": "Password confirmation does not match.",
+      "success": "Password updated. Sign in again if prompted.",
+      "fail": "Could not change password."
+    },
+    "progress": {
+      "title": "Progress by subject",
+      "subtitle": "Percentages update after you finish practice or exam sessions (correct answers vs answers in that session).",
+      "empty": "No progress yet. Start from your dashboard or topics.",
+      "correctFrom": "{{correct}} correct out of {{total}} answers",
+      "lastActivity": "Last activity: {{date}}"
+    },
+    "progressChart": {
+      "sectionTitle": "Progress over months",
+      "sectionSubtitle": "Two activity indicators (sample data for now).",
+      "dataset1": "Series 1",
+      "dataset2": "Series 2"
+    },
+    "months": {
+      "jan": "January",
+      "feb": "February",
+      "mar": "March",
+      "apr": "April",
+      "may": "May",
+      "jun": "June",
+      "jul": "July"
+    },
+    "mistakes": {
+      "title": "Questions you missed",
+      "subtitle": "The log updates when you submit practice or an exam. Open an explanation for any question.",
+      "empty": "No mistakes logged yet — great job, or finish a session first.",
+      "lastWrong": "Last wrong",
+      "wrongTimes": "Wrong count",
+      "level": "Level",
+      "explain": "Explanation",
+      "questionNum": "Question #{{id}}",
+      "prev": "Previous",
+      "next": "Next",
+      "pageOf": "Page {{page}} — total {{total}}"
+    },
+    "settings": {
+      "title": "Settings",
+      "body": "Customize your experience and notifications."
+    }
+  },
+  "subjectLabels": {
+    "statistics": "Statistics",
+    "algebra": "Algebra",
+    "calculus": "Calculus",
+    "engineering": "Geometry"
+  },
+  "topics": {
+    "title": "Choose a topic to practice",
+    "subtitle": "Each topic includes hundreds of questions across multiple difficulty levels.",
+    "questionBank": "Question bank",
+    "comprehensiveExamFor": "Comprehensive test for {{name}}",
+    "crumbDashboard": "Dashboard",
+    "crumbTopics": "Topics",
+    "crumbSubtopics": "Subtopics",
+    "loading": "Loading subjects…",
+    "loadError": "Could not load subjects. Check your connection and VITE_API_URL.",
+    "empty": "No active subjects right now.",
+    "noDescription": "—"
+  },
+  "difficulty": {
+    "crumbLevel": "Choose level",
+    "title": "Choose a difficulty level",
+    "subtitle": "You can start at any level and move up when you’re ready",
+    "fallbackSubject": "Topic",
+    "levels": {
+      "1": { "name": "Easy", "subtitle": "For beginners" },
+      "2": { "name": "Medium", "subtitle": "Moderate challenge" },
+      "3": { "name": "Hard", "subtitle": "For advanced learners" },
+      "4": { "name": "Very hard", "subtitle": "Expert level" }
+    }
+  }
+}

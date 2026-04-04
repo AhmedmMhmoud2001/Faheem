@@ -1,95 +1,242 @@
-import React, { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import Container from '../components/Container';
-import { ChevronRight, ChevronLeft, ArrowLeft } from 'lucide-react';
+import { ChevronRight, ArrowLeft } from 'lucide-react';
 import imgbanner from '../assets/imgbanner.png';
+import { api, getLearnerLang, resolveMediaUrl } from '../lib/api.js';
+
+const PRACTICE_LIMIT = 5;
 
 const Practice = () => {
     const navigate = useNavigate();
     const { subject, level } = useParams();
-    const [selectedAnswer, setSelectedAnswer] = useState(null);
-    const [showResult, setShowResult] = useState(false);
-    // Mock Question Data
-    const question = {
-        id: 1,
-        title: 'لوريم ايبسوم دولار سيت',
-        image: imgbanner,
-        options: [
-            'لوريم ايبسوم دولار سيت أميت ليجاتوس إنفيدونت',
-            'لوريم ايبسوم دولار سيت أميت إيليت، إت تيت إنترولي',
-            'لوريم ايبسوم دولار سيت أميت إي لومينيير مينيم إي ريبيوديامت لومينيير فينيام، إنتروليكيشن !',
-            'لوريم ايبسوم دولار سيت أميت فوليام كويرات ميوتيت تيت نوستراد لومينيير دو كونسيكتيتور ماج'
-        ],
-        correctAnswer: 1 // Index 1 (Option 2)
-    };
+    const location = useLocation();
+    const [currentQuestion, setCurrentQuestion] = useState(0);
+    const [attemptId, setAttemptId] = useState(null);
+    const [attempt, setAttempt] = useState(null);
+    const [stageStats, setStageStats] = useState({ answeredInStage: 0, correctInStage: 0 });
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+    const [submitting, setSubmitting] = useState(false);
 
-    const handleAnswerSelect = (index) => {
-        if (!showResult) {
-            setSelectedAnswer(index);
-            setShowResult(true);
+    const totalQuestions = attempt?.questionIds?.length || 0;
+    const questions = attempt?.questions || [];
+    const currentQ = questions[currentQuestion];
+
+    const refreshAttempt = useCallback(async (aid) => {
+        const { data } = await api.get(`/exams/attempts/${aid}`);
+        setAttempt(data);
+    }, []);
+
+    const refreshStageStats = useCallback(async () => {
+        try {
+            const { data } = await api.get('/practice/stats', {
+                params: { subjectSlug: subject, difficulty: Number(level) },
+            });
+            setStageStats({
+                answeredInStage: data.answeredInStage ?? 0,
+                correctInStage: data.correctInStage ?? 0,
+            });
+        } catch {
+            /* keep previous */
+        }
+    }, [subject, level]);
+
+    useEffect(() => {
+        let cancelled = false;
+        (async () => {
+            try {
+                let aid = location.state?.attemptId;
+                if (!aid) {
+                    const { data } = await api.post('/practice/sessions', {
+                        subjectSlug: subject,
+                        difficulty: Number(level),
+                        limit: PRACTICE_LIMIT,
+                        lang: getLearnerLang(),
+                    });
+                    aid = data.attemptId;
+                    if (!cancelled && data.stageStats) {
+                        setStageStats({
+                            answeredInStage: data.stageStats.answeredInStage ?? 0,
+                            correctInStage: data.stageStats.correctInStage ?? 0,
+                        });
+                    }
+                }
+                if (cancelled) return;
+                setAttemptId(aid);
+                await refreshAttempt(aid);
+                await refreshStageStats();
+            } catch (e) {
+                if (!cancelled) setError(e.response?.data?.message || 'تعذر بدء التدريب');
+            } finally {
+                if (!cancelled) setLoading(false);
+            }
+        })();
+        return () => {
+            cancelled = true;
+        };
+    }, [subject, level, location.state, refreshAttempt, refreshStageStats]);
+
+    const showResult = Boolean(currentQ?.userAnswerIndex != null);
+    const selectedAnswer = currentQ?.userAnswerIndex ?? null;
+    const isCorrect = Boolean(currentQ?.isCorrect);
+    const correctAnswerIndex =
+        currentQ?.correctIndex != null ? currentQ.correctIndex : null;
+
+    const handleAnswerSelect = async (answerIndex) => {
+        if (!attemptId || !currentQ || showResult) return;
+        try {
+            await api.post(`/exams/attempts/${attemptId}/answer`, {
+                questionId: currentQ.id,
+                selectedIndex: answerIndex,
+                lang: getLearnerLang(),
+            });
+            await refreshAttempt(attemptId);
+            await refreshStageStats();
+        } catch (e) {
+            alert(e.response?.data?.message || 'تعذر حفظ الإجابة');
         }
     };
 
-    const handleNext = () => {
-        // Since practice currently has one question, next should go to feedback/end flow
-        navigate('/feedback');
+    const handleNext = async () => {
+        if (currentQuestion < totalQuestions - 1) {
+            setCurrentQuestion(currentQuestion + 1);
+        } else {
+            setSubmitting(true);
+            try {
+                await api.post(`/exams/attempts/${attemptId}/submit`);
+                await refreshStageStats();
+                navigate('/feedback');
+            } catch (e) {
+                alert(e.response?.data?.message || 'تعذر إنهاء الجلسة');
+            } finally {
+                setSubmitting(false);
+            }
+        }
     };
 
-    const isCorrect = selectedAnswer === question.correctAnswer;
+    const handleBack = () => {
+        if (currentQuestion > 0) {
+            setCurrentQuestion(currentQuestion - 1);
+        } else {
+            navigate(-1);
+        }
+    };
+
+    const questionImageSrc = currentQ?.imageUrl ? resolveMediaUrl(currentQ.imageUrl) : null;
+
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center font-black text-slate-600" dir="rtl">
+                جاري تحميل الأسئلة...
+            </div>
+        );
+    }
+
+    if (error || !currentQ) {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center gap-4 p-6" dir="rtl">
+                <p className="font-black text-red-600 text-center">{error || 'لا توجد أسئلة لهذا المستوى'}</p>
+                <button
+                    type="button"
+                    onClick={() => navigate('/topics')}
+                    className="bg-slate-900 text-white px-6 py-3 rounded-xl font-bold"
+                >
+                    العودة للمواضيع
+                </button>
+            </div>
+        );
+    }
+
+    if (attempt?.status === 'EXPIRED') {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center gap-4 p-6" dir="rtl">
+                <p className="font-black text-slate-800">انتهت صلاحية جلسة التدريب</p>
+                <button
+                    type="button"
+                    onClick={() => navigate(`/topics/${subject}/difficulty`)}
+                    className="bg-[#FFD131] text-slate-900 px-6 py-3 rounded-xl font-black"
+                >
+                    اختيار المستوى من جديد
+                </button>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-slate-50/50 py-12 relative font-sans" dir="rtl">
             <Container>
-                {/* Header Title */}
-                <div className="flex items-center justify-end gap-3 mb-8">
-                    <h1 className="text-2xl font-black text-slate-800">{question.title}</h1>
-                    <div className="w-3 h-3 bg-[#FFD131] rounded-full"></div>
+                <div className="flex flex-wrap items-center justify-between gap-4 mb-6 text-sm font-bold text-slate-600">
+                    <span>
+                        السؤال {currentQuestion + 1} من {totalQuestions}
+                    </span>
+                    <span>
+                        في هذا المستوى (إجمالي إجاباتك): {stageStats.answeredInStage} سؤال
+                        {stageStats.correctInStage > 0
+                            ? ` — ${stageStats.correctInStage} إجابة صحيحة`
+                            : ''}
+                    </span>
                 </div>
 
-                {/* Hero Image */}
+                <div className="flex items-center justify-end gap-3 mb-8">
+                    <h1 className="text-2xl font-black text-slate-800 text-right leading-snug">{currentQ.stem}</h1>
+                    <div className="w-3 h-3 bg-[#FFD131] rounded-full shrink-0" />
+                </div>
+
                 <div className="w-full bg-slate-200 rounded-[3rem] overflow-hidden mb-12 shadow-sm">
                     <img
-                        src={question.image}
-                        alt="Question Illustration"
+                        src={questionImageSrc || imgbanner}
+                        alt=""
                         className="w-full h-auto object-cover max-h-[400px]"
                     />
                 </div>
 
-                {/* Options List */}
                 <div className="space-y-4 mb-20">
-                    {question.options.map((option, idx) => {
+                    {(currentQ.options || []).map((option, idx) => {
                         const isSelected = selectedAnswer === idx;
-                        const isCorrectAnswer = idx === question.correctAnswer;
+                        const isCorrectAnswer =
+                            showResult && correctAnswerIndex != null && idx === correctAnswerIndex;
 
-                        let cardStyle = "bg-white border-2 border-transparent shadow-sm";
-                        let numberStyle = "bg-slate-50 text-slate-400 border border-slate-200";
+                        let cardStyle = 'bg-white border-2 border-transparent shadow-sm';
+                        let numberStyle = 'bg-slate-50 text-slate-400 border border-slate-200';
 
                         if (showResult && isSelected) {
                             if (isCorrectAnswer) {
-                                cardStyle = "bg-green-50 border-2 border-green-500";
-                                numberStyle = "bg-green-500 text-white border border-green-500";
+                                cardStyle = 'bg-green-50 border-2 border-green-500';
+                                numberStyle = 'bg-green-500 text-white border border-green-500';
                             } else {
-                                cardStyle = "bg-red-50 border-2 border-red-400"; // Red for wrong
-                                numberStyle = "bg-red-400 text-white border border-red-400";
+                                cardStyle = 'bg-red-50 border-2 border-red-400';
+                                numberStyle = 'bg-red-400 text-white border border-red-400';
                             }
+                        } else if (showResult && isCorrectAnswer) {
+                            cardStyle = 'bg-green-50 border-2 border-green-500';
+                            numberStyle = 'bg-green-500 text-white border border-green-500';
                         } else if (isSelected) {
-                            cardStyle = "bg-[#fffbeb] border-2 border-[#FFD131]";
-                            numberStyle = "bg-[#FFD131] text-slate-900 border border-[#FFD131]";
+                            cardStyle = 'bg-[#fffbeb] border-2 border-[#FFD131]';
+                            numberStyle = 'bg-[#FFD131] text-slate-900 border border-[#FFD131]';
                         }
 
                         return (
                             <button
                                 key={idx}
+                                type="button"
                                 onClick={() => handleAnswerSelect(idx)}
                                 disabled={showResult}
                                 className={`w-full p-6 rounded-[2rem] flex items-center justify-between group transition-all duration-300 ${cardStyle} ${!showResult ? 'hover:border-slate-200' : ''}`}
                             >
-                                <span className={`text-lg font-bold text-right flex-1 ${isSelected && showResult && !isCorrectAnswer ? 'text-red-900' : 'text-slate-700'}`}>
+                                <span
+                                    className={`text-lg font-bold text-right flex-1 ${
+                                        isSelected && showResult && !isCorrectAnswer
+                                            ? 'text-red-900'
+                                            : 'text-slate-700'
+                                    }`}
+                                >
                                     {option}
                                 </span>
-
                                 <div className="mr-6">
-                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-base transition-all ${numberStyle}`}>
+                                    <div
+                                        className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-base transition-all ${numberStyle}`}
+                                    >
                                         {idx + 1}
                                     </div>
                                 </div>
@@ -98,20 +245,27 @@ const Practice = () => {
                     })}
                 </div>
 
-                {/* Footer Section */}
                 <div className="space-y-8">
-                    {/* Navigation Buttons */}
                     <div className="flex items-center justify-between">
                         <button
+                            type="button"
                             onClick={handleNext}
-                            className="flex items-center gap-3 bg-[#2d3342] hover:bg-slate-800 text-white px-10 py-3.5 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl"
+                            disabled={submitting || !showResult}
+                            className="flex items-center gap-3 bg-[#2d3342] hover:bg-slate-800 disabled:bg-slate-300 disabled:cursor-not-allowed text-white px-10 py-3.5 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl"
                         >
-                            <span>التالي</span>
+                            <span>
+                                {currentQuestion === totalQuestions - 1
+                                    ? submitting
+                                        ? 'جاري الحفظ...'
+                                        : 'إنهاء'
+                                    : 'التالي'}
+                            </span>
                             <ArrowLeft size={20} />
                         </button>
 
                         <button
-                            onClick={() => navigate(-1)}
+                            type="button"
+                            onClick={handleBack}
                             className="flex items-center gap-3 bg-white hover:bg-slate-50 text-slate-900 border border-slate-100 px-10 py-3.5 rounded-xl font-bold text-lg transition-all shadow-sm"
                         >
                             <span>رجوع</span>
@@ -119,28 +273,31 @@ const Practice = () => {
                         </button>
                     </div>
 
-                    {/* Result Feedback Section (Only if Wrong) */}
-                    {showResult && !isCorrect && (
+                    {showResult && !isCorrect && correctAnswerIndex != null && (
                         <div className="animate-in fade-in slide-in-from-top-4 space-y-4">
-                            {/* Error Header */}
                             <div className="flex items-center font-black text-red-600 gap-2 text-sm">
-                                <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[8px] border-b-red-600 rotate-90"></div>
+                                <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[8px] border-b-red-600 rotate-90" />
                                 <span>الإجابة خاطئة</span>
                             </div>
 
-                            {/* Correct Answer Box */}
                             <div className="bg-[#e7f7ed] rounded-2xl p-6 border border-[#d1e7dd]">
                                 <div className="mb-2">
-                                    <span className="font-black text-slate-800 text-base block mb-2">الإجابة الصحيحة :</span>
+                                    <span className="font-black text-slate-800 text-base block mb-2">
+                                        الإجابة الصحيحة :
+                                    </span>
                                     <p className="text-slate-700 font-bold text-sm leading-relaxed">
-                                        لوريم ايبسوم دولار سيت أميت نيسيوت دونك، دونك، دولار نوسترو يوت بيريتيتيس. سيت. أولامكو ديكتوم دولار سيد كونسيكوات. رييبوديامت كويرات سيد إكس فوليام نويس دولار كونسيكوات. كونسيفيكات كومودو فوليام نوستراد.
+                                        {(currentQ.options || [])[correctAnswerIndex]}
                                     </p>
                                 </div>
                             </div>
 
-                            {/* Explanation Button */}
                             <button
-                                onClick={() => navigate('/explanation')}
+                                type="button"
+                                onClick={() =>
+                                    navigate(`/explanation/${currentQ.id}`, {
+                                        state: { questionId: currentQ.id },
+                                    })
+                                }
                                 className="w-full md:w-auto flex items-center justify-center gap-3 bg-[#FFD131] hover:bg-[#ffc800] text-slate-900 px-12 py-3.5 rounded-xl font-black text-lg transition-all shadow-lg shadow-yellow-100"
                             >
                                 <div className="w-6 h-6 rounded-full border-2 border-slate-900 flex items-center justify-center">
@@ -151,7 +308,6 @@ const Practice = () => {
                         </div>
                     )}
                 </div>
-
             </Container>
         </div>
     );

@@ -1,123 +1,202 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Container from '../components/Container';
-import { ChevronLeft, Play, Pause, RotateCcw, RotateCw, FileDown } from 'lucide-react';
-import Navbar from '../components/Navbar';
-// We might need a video player library, but for now I'll build a custom UI wrapper around a standard video element or just the UI mock.
-// Since the user wants "The same design", I will focus on the UI.
+import { ChevronLeft, FileDown } from 'lucide-react';
+import { api } from '../lib/api.js';
 
-const Explanation = () => {
-    const { questionId } = useParams();
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [progress, setProgress] = useState(35); // Mock progress
+const apiOrigin =
+    (import.meta.env.VITE_API_URL || 'http://localhost:4000/api/v1').replace(/\/api\/v1\/?$/, '') ||
+    'http://localhost:4000';
 
-    // Mock Data
-    const explanationData = {
-        title: "لوريم ايبسوم دولار سيت",
-        description: `لوريم ايبسوم دولار سيت أميت كويرات إي، تيبور سيت. ديواس أوت بوت لابوريس نوسترو دو نويس ليجاتوس أليكويب مينيم إت لابورام لامبور إت أيت سيت.
-بيريتيتيس. سيد أميت، لامبور نويس ماغنيت، ديتيكتورمي سيت إت كويرات كونسيفيكات لومينيير ماجنا دو نيسيوت نويس ماغنيت، إي ديواس سيت. إنيم لابوريس سيت دولار سيت
-إيليت، توب ايبسوم إن تيت فوليام إنتيرديكتوم أليكويب أيت كويرات أيوتي نويس سيت دولار يوت لومينيير إنفيدونت إنتيروليكيشن أوت لومينيير أد أد ريبيوديامت كونسيكتيتور سيت
-ريبيوديامت ديكتوم كويرات إي لومينيير دونك، دولار أليكويب ماغنيت، كويس كويرات فينيام. فوليام إنفيدونت ماجنا نويس لابوري إنتيرديكتوم كويرات. ماجنا سيت، فوليام نويس سيت
-نيسي فوليام أليكويب إنتيروليكيشن إيليت، لامبور سيت فينيام، كويرات يوت أليكوي أيت فوليام كونسيكتيتور كونسيفيكات ماغنيت، توب إنفيدونت أدبييسشينج أيوبي إت إنتيرديكتوم
-ايبسوم لابوريس سيت كونسيفيكات كونسيكتيتور سيت، أليكوي إنفيدونت أولامكو إيليت. تيمبور نويس كونسين ديتيكتورمي تيت إت إي كلارينتي كونسيكتيتور أميت، أ`,
-        videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4" // Placeholder
-    };
+function resolveToAbsolute(url, origin) {
+    if (!url || !String(url).trim()) return '';
+    const u = String(url).trim();
+    if (u.startsWith('http://') || u.startsWith('https://')) return u;
+    const p = u.startsWith('/') ? u : `/${u}`;
+    return `${origin}${p}`;
+}
+
+/** Returns embed URL or null if not a recognized YouTube link. */
+function youtubeEmbedUrl(url) {
+    try {
+        const u = new URL(url);
+        const host = u.hostname.replace(/^www\./, '');
+        if (host === 'youtu.be') {
+            const id = u.pathname.replace(/^\//, '').split('/')[0];
+            return id ? `https://www.youtube.com/embed/${id}` : null;
+        }
+        if (host === 'youtube.com' || host.endsWith('.youtube.com')) {
+            if (u.pathname.startsWith('/embed/')) return url;
+            const v = u.searchParams.get('v');
+            if (v) return `https://www.youtube.com/embed/${v}`;
+            const shorts = u.pathname.match(/^\/shorts\/([^/]+)/);
+            if (shorts) return `https://www.youtube.com/embed/${shorts[1]}`;
+        }
+    } catch {
+        /* ignore */
+    }
+    return null;
+}
+
+function vimeoEmbedUrl(url) {
+    try {
+        const u = new URL(url);
+        if (!u.hostname.includes('vimeo.com')) return null;
+        const m = u.pathname.match(/\/(\d+)/);
+        return m ? `https://player.vimeo.com/video/${m[1]}` : null;
+    } catch {
+        return null;
+    }
+}
+
+function VideoSection({ rawUrl }) {
+    const abs = useMemo(() => resolveToAbsolute(rawUrl, apiOrigin), [rawUrl]);
+    const yt = useMemo(() => (abs ? youtubeEmbedUrl(abs) : null), [abs]);
+    const vm = useMemo(() => (!yt && abs ? vimeoEmbedUrl(abs) : null), [abs, yt]);
+
+    if (!abs) return null;
+
+    const frameClass = 'absolute inset-0 h-full w-full border-0';
+    const wrapClass =
+        'relative mb-12 aspect-video w-full overflow-hidden rounded-3xl bg-black shadow-2xl';
+
+    if (yt) {
+        return (
+            <div className={wrapClass}>
+                <iframe
+                    className={frameClass}
+                    src={yt}
+                    title="شرح الفيديو"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                />
+            </div>
+        );
+    }
+    if (vm) {
+        return (
+            <div className={wrapClass}>
+                <iframe className={frameClass} src={vm} title="شرح الفيديو" allowFullScreen />
+            </div>
+        );
+    }
 
     return (
-        <div className="min-h-screen bg-slate-50 font-sans pb-20" dir="rtl">
-            <Navbar /> {/* Assuming Navbar is used, though not strictly in the screenshot provided which only shows content. But easier to navigate. Wait, the screenshot HAS a navbar. */}
+        <div className={wrapClass}>
+            <video src={abs} controls playsInline className="h-full w-full object-contain">
+                متصفحك لا يدعم تشغيل هذا الفيديو.
+            </video>
+        </div>
+    );
+}
 
-            <Container className="pt-32">
-                {/* Breadcrumb */}
-                <div className="flex items-center gap-2 text-slate-400 mb-8 text-lg font-bold">
-                    <Link to="/" className="hover:text-slate-900 transition-colors">الرئيسية</Link>
+function ExplanationLoaded({ questionId }) {
+    const [data, setData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [err, setErr] = useState('');
+
+    useEffect(() => {
+        let cancelled = false;
+        api.get(`/questions/${questionId}`)
+            .then((r) => {
+                if (!cancelled) setData(r.data);
+            })
+            .catch((e) => {
+                if (!cancelled) setErr(e.response?.data?.message || 'تعذر تحميل الشرح');
+            })
+            .finally(() => {
+                if (!cancelled) setLoading(false);
+            });
+        return () => {
+            cancelled = true;
+        };
+    }, [questionId]);
+
+    const title = data?.stem?.slice(0, 80) || 'الشرح';
+    const description = data?.explanation?.trim()
+        ? data.explanation
+        : 'لا يوجد نص شرح لهذا السؤال.';
+
+    const pdfHref = data?.pdfUrl?.trim() ? resolveToAbsolute(data.pdfUrl.trim(), apiOrigin) : null;
+
+    if (loading) {
+        return (
+            <div className="flex min-h-screen items-center justify-center font-bold text-slate-600" dir="rtl">
+                جاري التحميل...
+            </div>
+        );
+    }
+
+    if (err || !data) {
+        return (
+            <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-6" dir="rtl">
+                <p className="font-black text-red-600">{err || 'لا بيانات'}</p>
+                <Link to="/dashboard" className="font-bold text-slate-900 underline">
+                    الرئيسية
+                </Link>
+            </div>
+        );
+    }
+
+    return (
+        <div className="min-h-screen bg-slate-50 pb-20 font-sans" dir="rtl">
+            <Container className="pt-8">
+                <div className="mb-8 flex items-center gap-2 text-lg font-bold text-slate-400">
+                    <Link to="/" className="transition-colors hover:text-slate-900">
+                        الرئيسية
+                    </Link>
                     <ChevronLeft size={20} />
-                    <Link to="/topics" className="hover:text-slate-900 transition-colors">المواضيع</Link>
+                    <Link to="/topics" className="transition-colors hover:text-slate-900">
+                        المواضيع
+                    </Link>
                     <ChevronLeft size={20} />
-                    <span className="text-slate-900">{explanationData.title}</span>
+                    <span className="text-slate-900">{title}</span>
                 </div>
 
-                {/* Video Player Container */}
-                <div className="relative w-full aspect-video bg-black rounded-3xl overflow-hidden shadow-2xl mb-12 group">
-                    <video
-                        src={explanationData.videoUrl}
-                        className="w-full h-full object-cover opacity-60"
-                        poster="/api/placeholder/1200/600"
-                    />
+                {data.videoUrl?.trim() ? <VideoSection rawUrl={data.videoUrl.trim()} /> : null}
 
-                    {/* Custom Controls Overlay */}
-                    <div className="absolute inset-0 flex flex-col justify-between p-8 text-white">
-                        <div className="flex justify-between items-start opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                            {/* Top controls if any */}
-                        </div>
-
-                        {/* Center Play Button */}
-                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                            <button
-                                onClick={() => setIsPlaying(!isPlaying)}
-                                className="w-24 h-24 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-white/30 transition-all pointer-events-auto transform hover:scale-110 active:scale-95"
-                            >
-                                <div className="w-20 h-20 bg-slate-900 rounded-full flex items-center justify-center shadow-2xl">
-                                    {isPlaying ? (
-                                        <Pause size={40} className="fill-white" />
-                                    ) : (
-                                        <Play size={40} className="fill-white translate-x-1" />
-                                    )}
-                                </div>
-                            </button>
-                        </div>
-
-                        {/* Bottom Controls */}
-                        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                            <div className="flex items-center justify-center gap-12 mb-6">
-                                <button className="hover:text-[#FFD131] transition-colors bg-black/20 rounded-full p-3 backdrop-blur-sm">
-                                    <RotateCw size={32} />
-                                    <span className="sr-only">Forward 15s</span>
-                                    <span className="absolute text-[10px] font-bold top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pt-1">15</span>
-                                </button>
-
-                                <div className="flex gap-12">
-                                    <button className="hover:text-[#FFD131] transition-colors"><ChevronLeft size={40} /></button>
-                                    <button className="hover:text-[#FFD131] transition-colors"><ChevronLeft size={40} className="rotate-180" /></button>
-                                </div>
-
-                                <button className="hover:text-[#FFD131] transition-colors bg-black/20 rounded-full p-3 backdrop-blur-sm relative">
-                                    <RotateCcw size={32} />
-                                    <span className="sr-only">Rewind 15s</span>
-                                    <span className="absolute text-[10px] font-bold top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pt-1">15</span>
-                                </button>
-                            </div>
-
-                            {/* Progress Bar */}
-                            <div className="flex items-center gap-4">
-                                <span className="font-bold font-mono">1:25</span>
-                                <div className="flex-1 h-2 bg-white/20 rounded-full overflow-hidden cursor-pointer relative">
-                                    <div className="absolute top-0 left-0 h-full bg-[#FFD131] w-[35%]"></div>
-                                </div>
-                                <span className="font-bold font-mono">3:15</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Description Text */}
-                <div className="bg-white rounded-[2rem] p-8 lg:p-12 shadow-sm border border-slate-100 mb-8">
-                    <p className="text-lg lg:text-xl font-bold text-slate-700 leading-loose text-justify">
-                        {explanationData.description}
+                <div className="mb-8 rounded-[2rem] border border-slate-100 bg-white p-8 shadow-sm lg:p-12">
+                    <p className="text-justify text-lg font-bold leading-loose text-slate-700 whitespace-pre-wrap lg:text-xl">
+                        {description}
                     </p>
                 </div>
 
-                {/* Download Button */}
-                <div className="flex justify-end">
-                    <button className="flex items-center gap-3 bg-white hover:bg-slate-50 border-2 border-slate-200 text-slate-700 px-8 py-4 rounded-2xl font-black text-xl transition-all shadow-sm hover:shadow-md group">
-                        <FileDown size={28} className="text-slate-400 group-hover:text-slate-900 transition-colors" />
-                        <span>تحميل المحتوي PDF</span>
-                    </button>
-                </div>
-
+                {pdfHref ? (
+                    <div className="flex justify-end">
+                        <a
+                            href={pdfHref}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="group flex items-center gap-3 rounded-2xl border-2 border-slate-200 bg-white px-8 py-4 text-xl font-black text-slate-700 shadow-sm transition-all hover:bg-slate-50 hover:shadow-md"
+                        >
+                            <FileDown
+                                size={28}
+                                className="text-slate-400 transition-colors group-hover:text-slate-900"
+                            />
+                            <span>تحميل المحتوى PDF</span>
+                        </a>
+                    </div>
+                ) : null}
             </Container>
         </div>
     );
+}
+
+const Explanation = () => {
+    const { questionId } = useParams();
+
+    if (!questionId) {
+        return (
+            <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-6" dir="rtl">
+                <p className="font-black text-red-600">معرّف السؤال غير موجود</p>
+                <Link to="/dashboard" className="font-bold text-slate-900 underline">
+                    الرئيسية
+                </Link>
+            </div>
+        );
+    }
+
+    return <ExplanationLoaded key={questionId} questionId={questionId} />;
 };
 
 export default Explanation;

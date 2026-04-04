@@ -1,138 +1,227 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Check } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { Check, LayoutDashboard } from 'lucide-react';
 import Container from '../components/Container';
+import { api } from '../lib/api.js';
+import { useAuth } from '../context/AuthContext';
+
+const pickLang = (isEn, ar, en) => {
+    if (isEn) return (en && String(en).trim()) || ar || '';
+    return ar || '';
+};
+
+const defaultFeatures = [
+    'الوصول الكامل لجميع الأسئلة (+1000)',
+    'اختبارات تجريبية غير محدودة',
+    'تقارير تفصيلية للأداء',
+    'إمكانية تحميل الاختبارات بصيغة PDF',
+    'أسئلة جديدة شهرياً',
+    'دعم فني متواصل',
+];
 
 const Subscriptions = () => {
     const navigate = useNavigate();
-    const plans = [
+    const { t, i18n } = useTranslation();
+    const { isLoggedIn, user, loading: authLoading, refreshMe } = useAuth();
+    const [plans, setPlans] = useState([
         {
-            name: "الباقة الشهرية",
-            price: "700",
-            pricePerSession: "96",
-            currency: "$",
-            features: [
-                "الوصول الكامل لجميع الأسئلة (+1000)",
-                "اختبارات تجريبية غير محدودة",
-                "تقارير تفصيلية للأداء",
-                "إمكانية تحميل الاختبارات بصيغة PDF",
-                "أسئلة جديدة شهرياً",
-                "دعم فني متواصل"
-            ]
+            name: 'الباقة الشهرية',
+            price: '700',
+            currency: '$',
+            slug: 'monthly',
+            features: defaultFeatures,
         },
         {
-            name: "الباقة السنوية",
-            price: "1400",
-            pricePerSession: "80",
-            currency: "$",
-            features: [
-                "الوصول الكامل لجميع الأسئلة (+1000)",
-                "اختبارات تجريبية غير محدودة",
-                "تقارير تفصيلية للأداء",
-                "إمكانية تحميل الاختبارات بصيغة PDF",
-                "أسئلة جديدة شهرياً",
-                "دعم فني متواصل"
-            ]
-        }
-    ];
+            name: 'الباقة السنوية',
+            price: '1400',
+            currency: '$',
+            slug: 'yearly',
+            features: defaultFeatures,
+        },
+    ]);
 
-    const faqs = [
-        {
-            question: "هل يمكنني إلغاء الإشتراك؟",
-            answer: "نعم، يمكنك إلغاء الاشتراك في أي وقت من إعدادات الحساب."
-        },
-        {
-            question: "ما هي طرق الدفع المتاحة؟",
-            answer: "نقبل جميع بطاقات الائتمان والخصم (VISA, MasterCard, Mada)."
-        },
-        {
-            question: "هل يوجد ضمان لاسترداد المال؟",
-            answer: "نعم، نوفر ضمان استرداد المال خلال 14 يوماً من الاشتراك."
+    useEffect(() => {
+        refreshMe();
+    }, [refreshMe]);
+
+    useEffect(() => {
+        api
+            .get('/plans')
+            .then((r) => {
+                const list = (r.data.data || []).map((p) => ({
+                    name: p.name,
+                    price: String(Math.round(p.priceCents / 100)),
+                    currency: p.currency === 'USD' ? '$' : p.currency,
+                    slug: p.slug,
+                    features: defaultFeatures,
+                }));
+                if (list.length) setPlans(list);
+            })
+            .catch(() => {});
+    }, []);
+
+    const entitlement = user?.entitlement;
+    const trialEnds = user?.entitlement?.trialEndsAt;
+    const [nowMs, setNowMs] = useState(() => Date.now());
+    useEffect(() => {
+        const id = setInterval(() => setNowMs(Date.now()), 60_000);
+        return () => clearInterval(id);
+    }, []);
+    const trialDaysLeft = useMemo(() => {
+        if (trialEnds == null) return null;
+        return Math.max(0, Math.ceil((new Date(trialEnds) - nowMs) / 86400000));
+    }, [trialEnds, nowMs]);
+
+    const [paymentFaqRemote, setPaymentFaqRemote] = useState(null);
+    useEffect(() => {
+        api
+            .get('/faq', { params: { scope: 'payment' } })
+            .then((r) => setPaymentFaqRemote(r.data))
+            .catch(() => setPaymentFaqRemote(null));
+    }, []);
+
+    const isEn = i18n.language?.startsWith('en');
+    const faqs = useMemo(() => {
+        const apiItems = paymentFaqRemote?.items;
+        if (apiItems && apiItems.length > 0) {
+            return apiItems.map((item) => ({
+                id: item.id,
+                question: pickLang(isEn, item.questionAr, item.questionEn),
+                answer: pickLang(isEn, item.answerAr, item.answerEn),
+            }));
         }
-    ];
+        return [];
+    }, [paymentFaqRemote, isEn]);
 
     const [openFaqIndex, setOpenFaqIndex] = useState(-1);
+    useEffect(() => {
+        setOpenFaqIndex((prev) => {
+            if (!faqs.length) return -1;
+            return prev >= faqs.length ? -1 : prev;
+        });
+    }, [faqs.length]);
+
+    const isRtl = i18n.dir() === 'rtl';
 
     return (
-        <div className="bg-slate-50/50 min-h-screen py-6" dir="rtl">
+        <div className="min-h-screen bg-slate-50/50 py-6" dir={i18n.dir()}>
             <Container>
-                {/* Title */}
-                <div className="text-right mb-12">
-                    <h1 className="text-5xl font-black text-slate-900">أشترك معنا!</h1>
+                <div className={`mb-10 flex flex-col gap-4 md:mb-12 md:flex-row md:items-center md:justify-between ${isRtl ? 'md:flex-row-reverse' : ''}`}>
+                    <h1 className="text-start text-4xl font-black text-slate-900 md:text-5xl">{t('subscriptionsPage.title')}</h1>
+                    {!authLoading && isLoggedIn && (
+                        <Link
+                            to="/dashboard"
+                            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl border-2 border-slate-200 bg-white px-6 py-3 font-black text-slate-800 shadow-sm transition-all hover:border-[#FFD131] hover:bg-[#FFD131]/10"
+                        >
+                            <LayoutDashboard className="h-5 w-5" strokeWidth={2.5} />
+                            {t('subscriptionsPage.backToDashboard')}
+                        </Link>
+                    )}
                 </div>
 
-                {/* Pricing Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+                {!authLoading && isLoggedIn && entitlement?.subscriptionStatus === 'ACTIVE' && (
+                    <div
+                        className={`mb-10 rounded-[1.5rem] border border-emerald-200 bg-emerald-50/90 p-5 md:p-6 ${isRtl ? 'text-right' : 'text-left'}`}
+                    >
+                        <h2 className="text-xl font-black text-emerald-900 md:text-2xl">{t('subscriptionsPage.activeTitle')}</h2>
+                        {entitlement?.planSlug && (
+                            <p className="mt-2 font-bold text-emerald-800">{t('subscriptionsPage.planLabel', { slug: entitlement.planSlug })}</p>
+                        )}
+                        <p className="mt-2 font-bold text-emerald-800/90">{t('subscriptionsPage.activeBody')}</p>
+                        <Link
+                            to="/dashboard"
+                            className="mt-4 inline-flex items-center gap-2 rounded-xl bg-emerald-700 px-5 py-2.5 font-black text-white transition hover:bg-emerald-800"
+                        >
+                            {t('subscriptionsPage.openDashboard')}
+                        </Link>
+                    </div>
+                )}
+
+                {!authLoading && isLoggedIn && entitlement?.subscriptionStatus === 'TRIALING' && trialDaysLeft != null && trialDaysLeft > 0 && (
+                    <div
+                        className={`mb-10 rounded-[1.5rem] border border-amber-200 bg-amber-50/90 p-5 md:p-6 ${isRtl ? 'text-right' : 'text-left'}`}
+                    >
+                        <h2 className="text-xl font-black text-amber-900 md:text-2xl">{t('subscriptionsPage.trialTitle')}</h2>
+                        <p className="mt-2 font-bold text-amber-900/85">{t('subscriptionsPage.trialDaysLeft', { count: trialDaysLeft })}</p>
+                        <div className="mt-4 flex flex-wrap gap-3">
+                            <Link
+                                to="/dashboard"
+                                className="inline-flex items-center gap-2 rounded-xl bg-[#FFD131] px-5 py-2.5 font-black text-slate-900 transition hover:bg-slate-900 hover:text-white"
+                            >
+                                {t('subscriptionsPage.openDashboard')}
+                            </Link>
+                        </div>
+                    </div>
+                )}
+
+                <div className="mb-16 grid grid-cols-1 gap-8 md:grid-cols-2">
                     {plans.map((plan, idx) => (
                         <div
-                            key={idx}
-                            className="bg-white rounded-[2rem] p-6 m-6 shadow-sm border border-slate-100 hover:border-yellow-400 transition-all"
+                            key={plan.slug || idx}
+                            className="m-6 rounded-[2rem] border border-slate-100 bg-white p-6 shadow-sm transition-all hover:border-yellow-400"
                         >
-                            {/* Price Badge */}
-                            <div className="bg-[#FFD131] rounded-2xl py-3 px-6 mb-6 text-center">
+                            <div className="mb-6 rounded-2xl bg-[#FFD131] px-6 py-3 text-center">
                                 <span className="text-3xl font-black text-slate-900">
-                                    {plan.currency}{plan.price}
+                                    {plan.currency}
+                                    {plan.price}
                                 </span>
                             </div>
 
-                            {/* Price per Session */}
-                            <div className="text-right mb-4">
-                                <span className="text-2xl font-black text-slate-900">
-                                    {plan.currency}{plan.pricePerSession} /الحصة
-                                </span>
-                            </div>
-
-                            {/* Tax Notice */}
-                            <p className="text-right text-red-500 font-bold text-sm mb-8">
-                                الأسعار المذكورة غير شاملة الضريبة
+                            <p className={`mb-8 text-sm font-bold text-red-500 ${isRtl ? 'text-right' : 'text-left'}`}>
+                                {t('subscriptionsPage.taxNote')}
                             </p>
-                            <hr className='text-slate-200 mb-6 -mt-4' />
+                            <hr className="mb-6 text-slate-200" />
 
-                            {/* Features List */}
-                            <div className="space-y-3 mb-8">
+                            <div className="mb-8 space-y-3">
                                 {plan.features.map((feature, fIdx) => (
-                                    <div key={fIdx} className="flex items-center gap-3">
-                                        <Check size={20} className="text-green-600 flex-shrink-0" strokeWidth={3} />
-                                        <span className="text-slate-700 font-bold text-base">{feature}</span>
+                                    <div key={fIdx} className={`flex items-center gap-3 ${isRtl ? 'flex-row-reverse' : ''}`}>
+                                        <Check size={20} className="flex-shrink-0 text-green-600" strokeWidth={3} />
+                                        <span className="text-base font-bold text-slate-700">{feature}</span>
                                     </div>
                                 ))}
                             </div>
 
-                            {/* Subscribe Button */}
                             <button
+                                type="button"
                                 onClick={() => navigate('/checkout')}
-                                className="w-full bg-slate-900 hover:bg-slate-800 text-white py-4 rounded-2xl font-black text-lg transition-all shadow-lg"
+                                className="w-full rounded-2xl bg-slate-900 py-4 text-lg font-black text-white shadow-lg transition-all hover:bg-slate-800"
                             >
-                                اشترك الآن!
+                                {t('subscriptionsPage.subscribeCta')}
                             </button>
                         </div>
                     ))}
                 </div>
 
-                {/* FAQ Section */}
                 <div className="mt-16">
-                    <h2 className="text-3xl font-black text-slate-900 mb-8 text-right">الأسئلة الشائعة</h2>
+                    <h2 className={`mb-8 text-3xl font-black text-slate-900 ${isRtl ? 'text-right' : 'text-left'}`}>
+                        {t('subscriptionsPage.faqTitle')}
+                    </h2>
                     <div className="space-y-4">
-                        {faqs.map((faq, idx) => (
-                            <div
-                                key={idx}
-                                className="bg-white rounded-2xl border-2 border-slate-200 overflow-hidden"
-                            >
-                                <button
-                                    onClick={() => setOpenFaqIndex(openFaqIndex === idx ? -1 : idx)}
-                                    className="w-full p-5 text-right font-black text-lg text-slate-900 hover:text-yellow-500 transition-colors"
-                                >
-                                    {faq.question}
-                                </button>
-                                {openFaqIndex === idx && (
-                                    <div className="px-5 pb-5">
-                                        <p className="text-slate-600 font-bold leading-relaxed">
-                                            {faq.answer}
-                                        </p>
-                                    </div>
-                                )}
-                            </div>
-                        ))}
+                        {faqs.length === 0 ? (
+                            <p className={`font-bold text-slate-500 ${isRtl ? 'text-right' : 'text-left'}`}>{t('subscriptionsPage.faqEmpty')}</p>
+                        ) : (
+                            faqs.map((faq, idx) => (
+                                <div key={faq.id} className="overflow-hidden rounded-2xl border-2 border-slate-200 bg-white">
+                                    <button
+                                        type="button"
+                                        onClick={() => setOpenFaqIndex(openFaqIndex === idx ? -1 : idx)}
+                                        className={`w-full p-5 text-lg font-black text-slate-900 transition-colors hover:text-yellow-500 ${isRtl ? 'text-right' : 'text-left'}`}
+                                    >
+                                        {faq.question}
+                                    </button>
+                                    {openFaqIndex === idx && (
+                                        <div className="px-5 pb-5">
+                                            <p
+                                                className={`whitespace-pre-wrap font-bold leading-relaxed text-slate-600 ${isRtl ? 'text-right' : 'text-left'}`}
+                                            >
+                                                {faq.answer}
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+                            ))
+                        )}
                     </div>
                 </div>
             </Container>

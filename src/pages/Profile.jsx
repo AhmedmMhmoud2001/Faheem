@@ -1,208 +1,630 @@
-import React, { useState } from 'react';
-import { User, Mail, Phone, Lock, Pencil, UserPen, TrendingUp, History, Settings2, ChevronDown, ChevronUp, HelpCircle } from 'lucide-react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import {
+  User,
+  Mail,
+  Phone,
+  Lock,
+  Pencil,
+  UserPen,
+  TrendingUp,
+  History,
+  Settings2,
+  ChevronDown,
+  ChevronUp,
+  HelpCircle,
+  Camera,
+  Loader2,
+} from 'lucide-react';
+import { Navigate, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import Container from '../components/Container';
+import ProfileProgressChart from '../components/ProfileProgressChart';
+import { useAuth } from '../context/AuthContext';
+import { api, uploadUserPhoto, resolveMediaUrl } from '../lib/api';
 
-const AccordionItem = ({ isOpen: initialOpen = false }) => {
-    const [isOpen, setIsOpen] = useState(initialOpen);
-
-    return (
-        <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden transition-all duration-300">
-            <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="w-full flex items-center justify-between p-6 hover:bg-slate-50 transition-colors"
-            >
-                <div className="flex items-center gap-4">
-                    <div className="w-2 h-2 rounded-full bg-[#FFD131]"></div>
-                    <span className="text-lg font-bold text-slate-700">لوريم ايبسوم دولار سيت ؟</span>
-                </div>
-                <div className="text-slate-400">
-                    {isOpen ? <ChevronUp size={24} /> : <ChevronDown size={24} />}
-                </div>
-            </button>
-            <div className={`transition-all duration-300 ease-in-out ${isOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}>
-                <div className="p-6 pt-0 space-y-4">
-                    <p className="text-slate-500 leading-relaxed text-lg">
-                        لوريم ايبسوم دولار سيت أميت نيسيوت دونك، دونك، دولار نوسترو يوت ييريتيتيس. سيت. أولامكو ديكتوم دولار سيد كونسيكوات. رييبوديامت كويرات سيد إكس فوليام نويس دولار كونسيكوات. ماغنيت، كونسيفيكات كومودو فوليام نوستراد فوليام آيت كويرات. فوليام سيت لومينيير لابوريس ديتيكتورمي ليجاتوس أولامكو أليكويب نيس.
-                    </p>
-                    <button className="flex items-center gap-2 bg-[#FFD131] hover:bg-slate-900 hover:text-white px-6 py-2.5 rounded-xl font-bold transition-all transform active:scale-95 shadow-lg shadow-yellow-100/50">
-                        <HelpCircle size={20} />
-                        <span>الشرح</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
+const slugToColor = {
+  statistics: 'bg-blue-700',
+  algebra: 'bg-slate-400',
+  calculus: 'bg-green-700',
+  engineering: 'bg-orange-600',
 };
 
-const Profile = () => {
-    const [activeTab, setActiveTab] = useState('edit-profile');
+function stripHtml(html) {
+  if (!html || typeof html !== 'string') return '';
+  return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+}
 
-    const tabs = [
-        { id: 'edit-profile', label: 'تعديل الملف الشخصي', icon: UserPen },
-        { id: 'progress', label: 'تقدمي', icon: TrendingUp },
-        { id: 'error-log', label: 'سجل الأخطاء', icon: History },
-        { id: 'settings', label: 'الإعدادات', icon: Settings2 },
-    ];
+function formatLocaleDate(iso, lang) {
+  if (!iso) return '—';
+  const loc = String(lang || 'ar').startsWith('ar') ? 'ar-SA' : 'en-US';
+  try {
+    return new Date(iso).toLocaleString(loc, { dateStyle: 'medium', timeStyle: 'short' });
+  } catch {
+    return '—';
+  }
+}
 
-    const profileFields = [
-        { label: 'الاسم', value: 'محمد الفهيم', icon: User },
-        { label: 'البريد الإلكتروني', value: 'example@email.com', icon: Mail },
-        { label: 'رقم الهاتف', value: '+20 123 456 789', icon: Phone },
-        { label: 'تغيير كلمة المرور', value: '********', icon: Lock },
-    ];
+function MistakeAccordionItem({ mistake, defaultOpen }) {
+  const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+  const q = mistake.question;
+  const raw = q?.stem || '';
+  const plain = stripHtml(raw);
+  const preview = plain.length > 180 ? `${plain.slice(0, 180)}…` : plain;
 
-    return (
-        <div className="min-h-screen bg-slate-50 pt-32 pb-20 font-sans relative" dir="rtl">
-            {/* Background Pattern */}
-            <div className="absolute inset-0 z-0 opacity-40" style={{ backgroundImage: 'radial-gradient(#cbd5e1 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
-
-            <Container className="relative z-10">
-                <div className="flex flex-col lg:flex-row gap-8">
-
-                    {/* Sidebar */}
-                    <div className="w-full lg:w-1/3">
-                        <div className="bg-white rounded-3xl shadow-lg shadow-slate-200/50 border border-slate-100 overflow-hidden">
-                            <div className="flex flex-col">
-                                {tabs.map((tab) => {
-                                    const Icon = tab.icon;
-                                    return (
-                                        <button
-                                            key={tab.id}
-                                            onClick={() => setActiveTab(tab.id)}
-                                            className={`w-full flex items-center gap-4 px-8 py-6 transition-all duration-300 relative ${activeTab === tab.id
-                                                ? 'bg-slate-50 text-slate-900 font-black'
-                                                : 'text-slate-400 hover:bg-slate-50 hover:text-slate-600'
-                                                }`}
-                                        >
-                                            {activeTab === tab.id && (
-                                                <div className="absolute top-0 right-0 w-1.5 h-full bg-[#00AEEF]"></div>
-                                            )}
-                                            <Icon size={24} className={activeTab === tab.id ? 'text-slate-700' : 'text-slate-300'} />
-                                            <span className="text-xl">{tab.label}</span>
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Main Content */}
-                    <div className="w-full lg:w-2/3">
-                        {activeTab === 'edit-profile' && (
-                            <div className="space-y-4">
-                                {profileFields.map((field, index) => {
-                                    const FieldIcon = field.icon;
-                                    return (
-                                        <div key={index} className="bg-white rounded-2xl shadow-sm border border-slate-50 p-6 flex items-center justify-between group hover:border-[#FFD131]/30 transition-all">
-                                            <div className="flex items-center gap-6 flex-1">
-                                                <div className="text-slate-300">
-                                                    <FieldIcon size={24} />
-                                                </div>
-                                                <div className="flex-1">
-                                                    <p className="text-sm text-slate-400 mb-0.5">{field.label}</p>
-                                                    <p className="text-lg font-bold text-slate-700">{field.value}</p>
-                                                </div>
-                                            </div>
-                                            <button className="p-2 text-slate-300 hover:text-[#00AEEF] transition-colors">
-                                                <Pencil size={18} />
-                                            </button>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        )}
-
-                        {activeTab === 'progress' && (
-                            <div className="bg-white rounded-3xl p-8 lg:p-12 border border-slate-100 flex flex-col items-center">
-                                <div className="w-full max-w-4xl aspect-[16/9] relative">
-                                    {/* Chart Header */}
-                                    <div className="flex items-center justify-center gap-6 mb-8">
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-3 h-3 rounded-full bg-[#FFD131]"></div>
-                                            <span className="text-sm font-bold text-slate-500">Dataset 1</span>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-3 h-3 rounded-full bg-slate-800"></div>
-                                            <span className="text-sm font-bold text-slate-500">Dataset 2</span>
-                                        </div>
-                                    </div>
-
-                                    {/* SVG Chart */}
-                                    <svg viewBox="0 0 800 400" className="w-full h-full overflow-visible">
-                                        {/* Grid Lines */}
-                                        {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
-                                            <g key={i}>
-                                                <line x1="50" y1={50 + i * 43} x2="750" y2={50 + i * 43} stroke="#f1f5f9" strokeWidth="1" />
-                                                <text x="35" y={55 + i * 43} className="text-[12px] fill-slate-400 font-bold" textAnchor="end">
-                                                    {800 - i * 200}
-                                                </text>
-                                            </g>
-                                        ))}
-
-                                        {/* X Axis Labels */}
-                                        {['January', 'February', 'March', 'April', 'May', 'June', 'July'].map((month, i) => (
-                                            <text key={i} x={50 + i * 116.6} y="375" className="text-[12px] fill-slate-400 font-bold" textAnchor="middle">
-                                                {month}
-                                            </text>
-                                        ))}
-
-                                        {/* Yellow Line (Dataset 1) */}
-                                        <path
-                                            d="M 50 320 L 166 280 L 283 180 L 400 220 L 516 120 L 633 240 L 750 250"
-                                            fill="none"
-                                            stroke="#FFD131"
-                                            strokeWidth="4"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                        />
-                                        {[
-                                            [50, 320], [166, 280], [283, 180], [400, 220], [516, 120], [633, 240], [750, 250]
-                                        ].map(([x, y], i) => (
-                                            <circle key={i} cx={x} cy={y} r="6" fill="#FFD131" stroke="white" strokeWidth="2" />
-                                        ))}
-
-                                        {/* Dark Line (Dataset 2) */}
-                                        <path
-                                            d="M 50 350 L 166 220 L 283 130 L 400 150 L 516 330 L 633 260 L 750 240"
-                                            fill="none"
-                                            stroke="#1e293b"
-                                            strokeWidth="4"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                        />
-                                        {[
-                                            [50, 350], [166, 220], [283, 130], [400, 150], [516, 330], [633, 260], [750, 240]
-                                        ].map(([x, y], i) => (
-                                            <circle key={i} cx={x} cy={y} r="6" fill="#1e293b" stroke="white" strokeWidth="2" />
-                                        ))}
-                                    </svg>
-                                </div>
-                            </div>
-                        )}
-
-                        {activeTab === 'error-log' && (
-                            <div className="space-y-4">
-                                {[1, 2, 3].map((item) => (
-                                    <AccordionItem key={item} isOpen={item === 2} />
-                                ))}
-                            </div>
-                        )}
-
-                        {activeTab === 'settings' && (
-                            <div className="bg-white rounded-3xl p-12 border border-slate-100 text-center">
-                                <div className="w-20 h-20 bg-slate-50 text-slate-400 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                                    <Settings2 size={40} />
-                                </div>
-                                <h3 className="text-2xl font-black text-slate-900 mb-2">الإعدادات</h3>
-                                <p className="text-slate-500">تخصيص تجربة التطبيق والتنبيهات.</p>
-                            </div>
-                        )}
-                    </div>
-
-                </div>
-            </Container>
+  return (
+    <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white transition-all duration-300">
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex w-full items-center justify-between gap-4 p-6 text-start transition-colors hover:bg-slate-50"
+      >
+        <div className="flex min-w-0 flex-1 items-center gap-4">
+          <div className="h-2 w-2 shrink-0 rounded-full bg-amber-500" />
+          <span className="truncate text-lg font-bold text-slate-800">
+            {preview || t('profile.mistakes.questionNum', { id: q?.id ?? '—' })}
+          </span>
         </div>
-    );
+        <div className="shrink-0 text-slate-400">{isOpen ? <ChevronUp size={24} /> : <ChevronDown size={24} />}</div>
+      </button>
+      <div
+        className={`transition-all duration-300 ease-in-out ${isOpen ? 'max-h-[480px] opacity-100' : 'max-h-0 opacity-0'}`}
+      >
+        <div className="space-y-4 px-6 pb-6 pt-0">
+          <p className="text-sm font-bold text-slate-500">
+            {t('profile.mistakes.lastWrong')}: {formatLocaleDate(mistake.lastWrongAt, i18n.language)} ·{' '}
+            {t('profile.mistakes.wrongTimes')}: {mistake.wrongCount} · {t('profile.mistakes.level')}:{' '}
+            {q?.difficulty ?? '—'}
+          </p>
+          <p className="text-base font-bold leading-relaxed text-slate-600">{plain || '—'}</p>
+          <button
+            type="button"
+            onClick={() => navigate(`/explanation/${q.id}`, { state: { questionId: q.id } })}
+            className="flex transform items-center gap-2 rounded-xl bg-[#FFD131] px-6 py-2.5 font-bold shadow-lg shadow-yellow-100/50 transition-all hover:bg-slate-900 hover:text-white active:scale-95"
+          >
+            <HelpCircle size={20} />
+            <span>{t('profile.mistakes.explain')}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const defaultAvatar = 'https://i.pravatar.cc/150?u=faheem';
+
+const Profile = () => {
+  const { t, i18n } = useTranslation();
+  const { isLoggedIn, loading: authLoading, refreshMe } = useAuth();
+  const [activeTab, setActiveTab] = useState('edit-profile');
+
+  const [progressRows, setProgressRows] = useState([]);
+  const [progressLoading, setProgressLoading] = useState(false);
+
+  const [mistakeRows, setMistakeRows] = useState([]);
+  const [mistakesMeta, setMistakesMeta] = useState(null);
+  const [mistakesLoading, setMistakesLoading] = useState(false);
+  const [mistakesPage, setMistakesPage] = useState(1);
+
+  const [meLoading, setMeLoading] = useState(true);
+  const [me, setMe] = useState(null);
+  const [fullName, setFullName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [photoBusy, setPhotoBusy] = useState(false);
+  const [feedback, setFeedback] = useState({ type: '', text: '' });
+
+  const [pwdOpen, setPwdOpen] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [pwdSaving, setPwdSaving] = useState(false);
+
+  const fileRef = useRef(null);
+
+  const loadMe = useCallback(async () => {
+    setMeLoading(true);
+    setFeedback({ type: '', text: '' });
+    try {
+      const { data } = await api.get('/users/me');
+      setMe(data);
+      setFullName(data.fullName || '');
+      setPhone(data.phone || '');
+    } catch {
+      setMe(null);
+      setFeedback({ type: 'err', text: t('profile.loadError') });
+    } finally {
+      setMeLoading(false);
+    }
+  }, [t]);
+
+  useEffect(() => {
+    if (!authLoading && isLoggedIn) {
+      loadMe();
+    }
+  }, [authLoading, isLoggedIn, loadMe]);
+
+  const subjectLabel = useCallback(
+    (slug, nameAr) => {
+      const key = `subjectLabels.${slug}`;
+      const translated = t(key);
+      return translated === key ? nameAr || slug : translated;
+    },
+    [t],
+  );
+
+  useEffect(() => {
+    if (activeTab === 'error-log') setMistakesPage(1);
+  }, [activeTab]);
+
+  useEffect(() => {
+    if (authLoading || !isLoggedIn || activeTab !== 'progress') return;
+    setProgressLoading(true);
+    api
+      .get('/users/me/progress')
+      .then((r) => setProgressRows(r.data.data || []))
+      .catch(() => setProgressRows([]))
+      .finally(() => setProgressLoading(false));
+  }, [authLoading, isLoggedIn, activeTab]);
+
+  useEffect(() => {
+    if (authLoading || !isLoggedIn || activeTab !== 'error-log') return;
+    setMistakesLoading(true);
+    api
+      .get('/users/me/mistakes', { params: { page: mistakesPage, limit: 15 } })
+      .then((r) => {
+        setMistakeRows(r.data.data || []);
+        setMistakesMeta(r.data.meta || null);
+      })
+      .catch(() => {
+        setMistakeRows([]);
+        setMistakesMeta(null);
+      })
+      .finally(() => setMistakesLoading(false));
+  }, [authLoading, isLoggedIn, activeTab, mistakesPage]);
+
+  const avatarDisplay = me?.avatarUrl ? resolveMediaUrl(me.avatarUrl) : defaultAvatar;
+
+  async function handlePhotoChange(e) {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    setPhotoBusy(true);
+    setFeedback({ type: '', text: '' });
+    try {
+      const url = await uploadUserPhoto(file);
+      await api.patch('/users/me', { avatarUrl: url });
+      await loadMe();
+      await refreshMe();
+      setFeedback({ type: 'ok', text: t('profile.photo.updated') });
+    } catch {
+      setFeedback({ type: 'err', text: t('profile.photo.uploadFail') });
+    } finally {
+      setPhotoBusy(false);
+    }
+  }
+
+  async function removePhoto() {
+    if (!window.confirm(t('profile.photo.removeConfirm'))) return;
+    setPhotoBusy(true);
+    setFeedback({ type: '', text: '' });
+    try {
+      await api.patch('/users/me', { avatarUrl: null });
+      await loadMe();
+      await refreshMe();
+      setFeedback({ type: 'ok', text: t('profile.photo.removed') });
+    } catch {
+      setFeedback({ type: 'err', text: t('profile.photo.removeFail') });
+    } finally {
+      setPhotoBusy(false);
+    }
+  }
+
+  async function saveProfile(e) {
+    e.preventDefault();
+    setSaving(true);
+    setFeedback({ type: '', text: '' });
+    try {
+      await api.patch('/users/me', {
+        fullName: fullName.trim(),
+        phone: phone.trim() ? phone.trim() : null,
+      });
+      await loadMe();
+      await refreshMe();
+      setFeedback({ type: 'ok', text: t('profile.form.saved') });
+    } catch (err) {
+      const msg = err.response?.data?.message || t('profile.form.saveFail');
+      setFeedback({ type: 'err', text: msg });
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function savePassword(e) {
+    e.preventDefault();
+    if (newPassword.length < 8) {
+      setFeedback({ type: 'err', text: t('profile.security.shortPassword') });
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setFeedback({ type: 'err', text: t('profile.security.mismatch') });
+      return;
+    }
+    setPwdSaving(true);
+    setFeedback({ type: '', text: '' });
+    try {
+      await api.post('/users/me/password', { currentPassword, newPassword });
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      setPwdOpen(false);
+      setFeedback({ type: 'ok', text: t('profile.security.success') });
+    } catch (err) {
+      const msg = err.response?.data?.message || t('profile.security.fail');
+      setFeedback({ type: 'err', text: msg });
+    } finally {
+      setPwdSaving(false);
+    }
+  }
+
+  if (!authLoading && !isLoggedIn) {
+    return <Navigate to="/login" replace state={{ from: '/profile' }} />;
+  }
+
+  const tabs = useMemo(
+    () => [
+      { id: 'edit-profile', label: t('profile.tabs.editProfile'), icon: UserPen },
+      { id: 'progress', label: t('profile.tabs.progress'), icon: TrendingUp },
+      { id: 'error-log', label: t('profile.tabs.errorLog'), icon: History },
+      { id: 'settings', label: t('profile.tabs.settings'), icon: Settings2 },
+    ],
+    [t],
+  );
+
+  return (
+    <div className="relative min-h-screen bg-slate-50 pb-20 pt-32 font-sans" dir={i18n.dir()}>
+      <div
+        className="absolute inset-0 z-0 opacity-40"
+        style={{
+          backgroundImage: 'radial-gradient(#cbd5e1 1px, transparent 1px)',
+          backgroundSize: '40px 40px',
+        }}
+      />
+
+      <Container className="relative z-10">
+        <div className="flex flex-col gap-8 lg:flex-row">
+          <div className="w-full lg:w-1/3">
+            <div className="overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-lg shadow-slate-200/50">
+              <div className="flex flex-col">
+                {tabs.map((tab) => {
+                  const Icon = tab.icon;
+                  return (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`relative flex w-full items-center gap-4 px-8 py-6 transition-all duration-300 ${
+                        activeTab === tab.id
+                          ? 'bg-slate-50 font-black text-slate-900'
+                          : 'text-slate-400 hover:bg-slate-50 hover:text-slate-600'
+                      }`}
+                    >
+                      {activeTab === tab.id && (
+                        <div className="absolute start-0 top-0 h-full w-1.5 bg-[#00AEEF]" />
+                      )}
+                      <Icon size={24} className={activeTab === tab.id ? 'text-slate-700' : 'text-slate-300'} />
+                      <span className="text-xl">{tab.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          <div className="w-full lg:w-2/3">
+            {activeTab === 'edit-profile' && (
+              <div className="space-y-6">
+                {feedback.text && (
+                  <div
+                    className={`rounded-2xl border px-4 py-3 text-sm font-bold ${
+                      feedback.type === 'ok'
+                        ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+                        : 'border-red-200 bg-red-50 text-red-800'
+                    }`}
+                  >
+                    {feedback.text}
+                  </div>
+                )}
+
+                {meLoading ? (
+                  <div className="flex items-center justify-center gap-2 rounded-2xl border border-slate-100 bg-white py-16 text-slate-500">
+                    <Loader2 className="h-6 w-6 animate-spin" />
+                    <span className="font-bold">{t('profile.loading')}</span>
+                  </div>
+                ) : (
+                  <>
+                    <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+                      <p className="mb-4 text-sm font-bold text-slate-400">{t('profile.photo.sectionTitle')}</p>
+                      <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-center">
+                        <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-full border-4 border-[#FFD131] bg-slate-100">
+                          <img
+                            src={avatarDisplay}
+                            alt=""
+                            className="h-full w-full object-cover"
+                          />
+                          {photoBusy && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                              <Loader2 className="h-8 w-8 animate-spin text-white" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex flex-wrap justify-center gap-2 sm:justify-start">
+                          <input
+                            ref={fileRef}
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp"
+                            className="hidden"
+                            onChange={handlePhotoChange}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => fileRef.current?.click()}
+                            disabled={photoBusy}
+                            className="inline-flex items-center gap-2 rounded-xl bg-[#00AEEF] px-4 py-2.5 font-bold text-white transition-colors hover:bg-slate-900 disabled:opacity-50"
+                          >
+                            <Camera size={18} />
+                            {t('profile.photo.change')}
+                          </button>
+                          {me?.avatarUrl && (
+                            <button
+                              type="button"
+                              onClick={removePhoto}
+                              disabled={photoBusy}
+                              className="rounded-xl border border-slate-200 px-4 py-2.5 font-bold text-slate-600 hover:bg-slate-50 disabled:opacity-50"
+                            >
+                              {t('profile.photo.remove')}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                      <p className="mt-3 text-xs text-slate-400">{t('profile.photo.hint')}</p>
+                    </div>
+
+                    <form
+                      onSubmit={saveProfile}
+                      className="space-y-4 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm"
+                    >
+                      <h3 className="text-lg font-black text-slate-800">{t('profile.form.basicTitle')}</h3>
+
+                      <div className="space-y-1">
+                        <label className="text-sm font-bold text-slate-500">{t('profile.form.fullName')}</label>
+                        <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3">
+                          <User className="text-slate-300" size={22} />
+                          <input
+                            value={fullName}
+                            onChange={(e) => setFullName(e.target.value)}
+                            required
+                            minLength={2}
+                            className="min-w-0 flex-1 bg-transparent font-bold text-slate-800 outline-none"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-sm font-bold text-slate-500">{t('profile.form.email')}</label>
+                        <div className="flex items-center gap-3 rounded-xl border border-slate-100 bg-slate-100/80 px-4 py-3">
+                          <Mail className="text-slate-300" size={22} />
+                          <span className="font-bold text-slate-600">{me?.email || '—'}</span>
+                        </div>
+                        <p className="text-xs text-slate-400">{t('profile.form.emailLocked')}</p>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-sm font-bold text-slate-500">{t('profile.form.phone')}</label>
+                        <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3">
+                          <Phone className="text-slate-300" size={22} />
+                          <input
+                            value={phone}
+                            onChange={(e) => setPhone(e.target.value)}
+                            placeholder={t('profile.form.phonePlaceholder')}
+                            className="min-w-0 flex-1 bg-transparent font-bold text-slate-800 outline-none placeholder:font-normal"
+                          />
+                        </div>
+                      </div>
+
+                      <button
+                        type="submit"
+                        disabled={saving}
+                        className="w-full rounded-xl bg-[#FFD131] py-3.5 font-black text-slate-900 transition-colors hover:bg-slate-900 hover:text-white disabled:opacity-50 sm:w-auto sm:px-10"
+                      >
+                        {saving ? t('profile.form.saving') : t('profile.form.save')}
+                      </button>
+                    </form>
+
+                    <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+                      <button
+                        type="button"
+                        onClick={() => setPwdOpen(!pwdOpen)}
+                        className="flex w-full items-center justify-between"
+                      >
+                        <div className="flex items-center gap-4">
+                          <Lock className="text-slate-300" size={24} />
+                          <div className="text-start">
+                            <p className="text-sm text-slate-400">{t('profile.security.caption')}</p>
+                            <p className="text-lg font-bold text-slate-700">{t('profile.security.changePassword')}</p>
+                          </div>
+                        </div>
+                        <Pencil size={18} className="text-slate-300" />
+                      </button>
+
+                      {pwdOpen && (
+                        <form onSubmit={savePassword} className="mt-6 space-y-4 border-t border-slate-100 pt-6">
+                          <input
+                            type="password"
+                            value={currentPassword}
+                            onChange={(e) => setCurrentPassword(e.target.value)}
+                            required
+                            placeholder={t('profile.security.current')}
+                            className="w-full rounded-xl border border-slate-200 px-4 py-3 font-bold outline-none focus:ring-2 focus:ring-[#00AEEF]"
+                          />
+                          <input
+                            type="password"
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
+                            required
+                            minLength={8}
+                            placeholder={t('profile.security.new')}
+                            className="w-full rounded-xl border border-slate-200 px-4 py-3 font-bold outline-none focus:ring-2 focus:ring-[#00AEEF]"
+                          />
+                          <input
+                            type="password"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            required
+                            placeholder={t('profile.security.confirm')}
+                            className="w-full rounded-xl border border-slate-200 px-4 py-3 font-bold outline-none focus:ring-2 focus:ring-[#00AEEF]"
+                          />
+                          <button
+                            type="submit"
+                            disabled={pwdSaving}
+                            className="rounded-xl bg-slate-900 px-6 py-3 font-bold text-white hover:bg-slate-800 disabled:opacity-50"
+                          >
+                            {pwdSaving ? t('profile.security.submitting') : t('profile.security.submit')}
+                          </button>
+                        </form>
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'progress' && (
+              <div className="rounded-3xl border border-slate-100 bg-white p-8 shadow-sm lg:p-10">
+                <h3 className="mb-2 text-2xl font-black text-slate-900">{t('profile.progress.title')}</h3>
+                <p className="mb-6 text-sm font-bold text-slate-500">{t('profile.progress.subtitle')}</p>
+
+                <div className="mb-10 rounded-2xl border border-slate-100 bg-slate-50/50 p-4 md:p-6">
+                  <h4 className="mb-1 text-lg font-black text-slate-900">
+                    {t('profile.progressChart.sectionTitle')}
+                  </h4>
+                  <p className="mb-4 text-xs font-bold text-slate-500 md:text-sm">
+                    {t('profile.progressChart.sectionSubtitle')}
+                  </p>
+                  <ProfileProgressChart t={t} />
+                </div>
+
+                {progressLoading ? (
+                  <div className="flex items-center justify-center gap-2 py-16 text-slate-500">
+                    <Loader2 className="h-6 w-6 animate-spin" />
+                    <span className="font-bold">{t('profile.loading')}</span>
+                  </div>
+                ) : progressRows.length === 0 ? (
+                  <p className="py-12 text-center font-bold text-slate-500">{t('profile.progress.empty')}</p>
+                ) : (
+                  <div className="space-y-6">
+                    {progressRows.map((row) => {
+                      const pct = Math.min(100, Math.max(0, row.percentSnapshot ?? 0));
+                      const barClass = slugToColor[row.slug] || 'bg-slate-500';
+                      const label = subjectLabel(row.slug, row.nameAr);
+                      return (
+                        <div key={row.subjectId} className="space-y-2">
+                          <div className="flex w-full flex-row items-center justify-between gap-3">
+                            <h4 className={`text-xl font-black ${barClass.replace('bg-', 'text-')}`}>{label}</h4>
+                            <span className="text-xl font-black text-slate-900">{pct}%</span>
+                          </div>
+                          <p className="text-xs font-bold text-slate-400">
+                            {t('profile.progress.correctFrom', {
+                              correct: row.answeredCorrect ?? 0,
+                              total: row.answeredTotal ?? 0,
+                            })}
+                            {row.lastActivityAt
+                              ? ` · ${t('profile.progress.lastActivity', { date: formatLocaleDate(row.lastActivityAt, i18n.language) })}`
+                              : ''}
+                          </p>
+                          <div className="h-3 w-full overflow-hidden rounded-full bg-slate-100 shadow-inner">
+                            <div
+                              className={`h-full rounded-full transition-all duration-700 ${barClass}`}
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'error-log' && (
+              <div className="space-y-4">
+                <div className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
+                  <h3 className="mb-1 text-xl font-black text-slate-900">{t('profile.mistakes.title')}</h3>
+                  <p className="text-sm font-bold text-slate-500">{t('profile.mistakes.subtitle')}</p>
+                </div>
+                {mistakesLoading ? (
+                  <div className="flex items-center justify-center gap-2 rounded-2xl border border-slate-100 bg-white py-16 text-slate-500">
+                    <Loader2 className="h-6 w-6 animate-spin" />
+                    <span className="font-bold">{t('profile.loading')}</span>
+                  </div>
+                ) : mistakeRows.length === 0 ? (
+                  <div className="rounded-2xl border border-slate-100 bg-white py-16 text-center font-bold text-slate-500">
+                    {t('profile.mistakes.empty')}
+                  </div>
+                ) : (
+                  <>
+                    {mistakeRows.map((m, idx) => (
+                      <MistakeAccordionItem key={m.id} mistake={m} defaultOpen={idx === 0} />
+                    ))}
+                    {mistakesMeta && mistakesMeta.total > mistakesMeta.limit && (
+                      <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+                        <button
+                          type="button"
+                          disabled={mistakesPage <= 1 || mistakesLoading}
+                          onClick={() => setMistakesPage((p) => Math.max(1, p - 1))}
+                          className="rounded-xl border border-slate-200 px-4 py-2 font-bold text-slate-700 disabled:opacity-40"
+                        >
+                          {t('profile.mistakes.prev')}
+                        </button>
+                        <span className="text-sm font-bold text-slate-500">
+                          {t('profile.mistakes.pageOf', {
+                            page: mistakesMeta.page,
+                            total: mistakesMeta.total,
+                          })}
+                        </span>
+                        <button
+                          type="button"
+                          disabled={
+                            mistakesLoading ||
+                            mistakesMeta.page * mistakesMeta.limit >= mistakesMeta.total
+                          }
+                          onClick={() => setMistakesPage((p) => p + 1)}
+                          className="rounded-xl border border-slate-200 px-4 py-2 font-bold text-slate-700 disabled:opacity-40"
+                        >
+                          {t('profile.mistakes.next')}
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'settings' && (
+              <div className="rounded-3xl border border-slate-100 bg-white p-12 text-center">
+                <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-slate-50 text-slate-400">
+                  <Settings2 size={40} />
+                </div>
+                <h3 className="mb-2 text-2xl font-black text-slate-900">{t('profile.settings.title')}</h3>
+                <p className="text-slate-500">{t('profile.settings.body')}</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </Container>
+    </div>
+  );
 };
 
 export default Profile;

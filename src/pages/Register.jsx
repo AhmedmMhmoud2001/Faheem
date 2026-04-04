@@ -1,17 +1,41 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Apple, Facebook } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { api } from '../lib/api.js';
 import logo from '../assets/logo.png';
 
 const Register = () => {
     const navigate = useNavigate();
-    const { login } = useAuth();
+    const { loginWithTokens } = useAuth();
+    const [form, setForm] = useState({
+        fullName: '',
+        email: '',
+        password: '',
+        confirm: '',
+    });
+    const [loading, setLoading] = useState(false);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        login();
-        navigate('/dashboard');
+        if (form.password !== form.confirm) {
+            alert('كلمتا المرور غير متطابقتين');
+            return;
+        }
+        setLoading(true);
+        try {
+            const { data } = await api.post('/auth/register', {
+                fullName: form.fullName,
+                email: form.email.trim(),
+                password: form.password,
+            });
+            await loginWithTokens(data.accessToken, data.refreshToken);
+            navigate('/dashboard');
+        } catch (err) {
+            alert(err.response?.data?.message || 'فشل إنشاء الحساب');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -32,6 +56,9 @@ const Register = () => {
                         <div className="space-y-2">
                             <input
                                 type="text"
+                                required
+                                value={form.fullName}
+                                onChange={(e) => setForm({ ...form, fullName: e.target.value })}
                                 className="w-full bg-slate-50 border-none rounded-2xl py-5 px-6 focus:ring-2 focus:ring-yellow-400 font-bold transition-all outline-none"
                                 placeholder="الاسم بالكامل"
                             />
@@ -40,7 +67,10 @@ const Register = () => {
                         <div className="space-y-2">
                             <label className="text-slate-800 font-black block mb-2 px-2">رقم الهاتف أو البريد الإلكتروني</label>
                             <input
-                                type="text"
+                                type="email"
+                                required
+                                value={form.email}
+                                onChange={(e) => setForm({ ...form, email: e.target.value })}
                                 className="w-full bg-slate-50 border-none rounded-2xl py-5 px-6 focus:ring-2 focus:ring-yellow-400 font-bold transition-all outline-none"
                                 placeholder="example@email.com"
                             />
@@ -51,6 +81,10 @@ const Register = () => {
                                 <label className="text-slate-800 font-black block mb-2 px-2">كلمة السر</label>
                                 <input
                                     type="password"
+                                    required
+                                    minLength={8}
+                                    value={form.password}
+                                    onChange={(e) => setForm({ ...form, password: e.target.value })}
                                     className="w-full bg-slate-50 border-none rounded-2xl py-5 px-6 focus:ring-2 focus:ring-yellow-400 font-bold transition-all outline-none"
                                     placeholder="••••••••"
                                 />
@@ -59,14 +93,21 @@ const Register = () => {
                                 <label className="text-slate-800 font-black block mb-2 px-2">تأكيد كلمة السر</label>
                                 <input
                                     type="password"
+                                    required
+                                    value={form.confirm}
+                                    onChange={(e) => setForm({ ...form, confirm: e.target.value })}
                                     className="w-full bg-slate-50 border-none rounded-2xl py-5 px-6 focus:ring-2 focus:ring-yellow-400 font-bold transition-all outline-none"
                                     placeholder="••••••••"
                                 />
                             </div>
                         </div>
 
-                        <button className="w-full bg-[#FFD740] hover:bg-slate-900 hover:text-white py-5 rounded-3xl font-black text-xl transition-all transform hover:-translate-y-1 active:scale-95 shadow-xl shadow-yellow-200/50 mt-4">
-                            إنشاء حساب
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="w-full bg-[#FFD740] hover:bg-slate-900 hover:text-white py-5 rounded-3xl font-black text-xl transition-all transform hover:-translate-y-1 active:scale-95 shadow-xl shadow-yellow-200/50 mt-4 disabled:opacity-50"
+                        >
+                            {loading ? 'جاري الإنشاء...' : 'إنشاء حساب'}
                         </button>
 
                         <p className="text-slate-400 text-sm font-bold text-center mt-6">

@@ -1,79 +1,87 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import Container from '../components/Container';
 import logo from '../assets/logo.png';
+import { api } from '../lib/api.js';
 
 const ForgotPassword = () => {
     const navigate = useNavigate();
+    const { t, i18n } = useTranslation();
     const [emailOrPhone, setEmailOrPhone] = useState('');
     const [canResend, setCanResend] = useState(true);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Send verification code
-        navigate('/verify-code', { state: { emailOrPhone } });
+        try {
+            await api.post('/auth/forgot-password', { email: emailOrPhone.trim() });
+            navigate('/verify-code', { state: { emailOrPhone: emailOrPhone.trim() } });
+        } catch (err) {
+            const msg = err.response?.data?.message;
+            alert(typeof msg === 'string' && msg.trim() ? msg : t('forgotPassword.error'));
+        }
     };
 
     const handleResend = () => {
         setCanResend(false);
-        // Simulate sending code
         setTimeout(() => {
             setCanResend(true);
-        }, 30000); // 30 seconds
+        }, 30000);
     };
 
     return (
-        <div className="min-h-screen bg-slate-50/50 flex items-center justify-center py-12" dir="rtl">
+        <div className="flex min-h-screen items-center justify-center bg-slate-50/50 py-12" dir={i18n.dir()}>
             <Container>
-                <div className="max-w-lg mx-auto">
-                    <div className="bg-white rounded-[3rem] p-10 shadow-sm border border-slate-100">
-                        {/* Logo */}
-                        <div className="flex justify-center mb-8">
-                            <img src={logo} alt="الفهيم" className="h-32 w-auto" />
+                <div className="mx-auto max-w-lg">
+                    <div className="rounded-[3rem] border border-slate-100 bg-white p-10 shadow-sm">
+                        <div className="mb-8 flex justify-center">
+                            <img src={logo} alt={t('forgotPassword.logoAlt')} className="h-32 w-auto" />
                         </div>
 
-                        {/* Title */}
-                        <div className="text-center mb-8">
-                            <h1 className="text-3xl font-black text-slate-900 mb-3">
-                                هل نسيت كلمة السر؟
-                            </h1>
-                            <p className="text-slate-500 font-bold text-base">
-                                أدخل رقم الهاتف أو البريد الإلكتروني إرسال رقم المصادقة
-                            </p>
+                        <div className="mb-8 text-center">
+                            <h1 className="mb-3 text-3xl font-black text-slate-900">{t('forgotPassword.title')}</h1>
+                            <p className="text-base font-bold text-slate-500">{t('forgotPassword.subtitle')}</p>
                         </div>
 
-                        {/* Form */}
                         <form onSubmit={handleSubmit} className="space-y-6">
                             <div>
                                 <input
-                                    type="text"
+                                    type="email"
+                                    autoComplete="email"
                                     required
-                                    placeholder="رقم الهاتف أو البريد الإلكتروني"
+                                    placeholder={t('forgotPassword.placeholder')}
                                     value={emailOrPhone}
                                     onChange={(e) => setEmailOrPhone(e.target.value)}
-                                    className="w-full bg-white border-2 border-slate-200 rounded-2xl py-4 px-6 focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 font-bold transition-all outline-none text-right"
+                                    className="w-full rounded-2xl border-2 border-slate-200 bg-white py-4 ps-6 pe-6 font-bold text-slate-900 outline-none transition-all focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400 text-start"
                                 />
                             </div>
 
-                            {/* Resend Link */}
                             <div className="text-center">
                                 <button
                                     type="button"
                                     onClick={handleResend}
                                     disabled={!canResend}
-                                    className="text-slate-600 hover:text-slate-900 font-bold text-sm disabled:text-slate-400 disabled:cursor-not-allowed transition-colors"
+                                    className="text-sm font-bold text-slate-600 transition-colors hover:text-slate-900 disabled:cursor-not-allowed disabled:text-slate-400"
                                 >
-                                    لم يصل إليك الكود؟ إعادة الإرسال
+                                    {t('forgotPassword.resend')}
                                 </button>
                             </div>
 
-                            {/* Submit Button */}
                             <button
                                 type="submit"
-                                className="w-full bg-[#FFD131] hover:bg-slate-900 hover:text-white text-slate-900 py-4 rounded-2xl font-black text-lg transition-all shadow-lg shadow-yellow-200/50"
+                                className="w-full rounded-2xl bg-[#FFD131] py-4 text-lg font-black text-slate-900 shadow-lg shadow-yellow-200/50 transition-all hover:bg-slate-900 hover:text-white"
                             >
-                                إرسال
+                                {t('forgotPassword.submit')}
                             </button>
+
+                            <p className="text-center">
+                                <Link
+                                    to="/login"
+                                    className="text-sm font-bold text-slate-600 underline-offset-4 transition-colors hover:text-slate-900"
+                                >
+                                    {t('forgotPassword.backToLogin')}
+                                </Link>
+                            </p>
                         </form>
                     </div>
                 </div>
@@ -83,4 +91,3 @@ const ForgotPassword = () => {
 };
 
 export default ForgotPassword;
-

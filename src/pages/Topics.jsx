@@ -1,136 +1,257 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import Container from '../components/Container';
 import { ChevronLeft, Ruler, TrendingUp } from 'lucide-react';
+import { api, resolveMediaUrl } from '../lib/api.js';
+import decorativePattern from '../assets/decorative-icons.png';
+
+function pickLang(primary, fallback) {
+    const p = primary?.trim();
+    return p || fallback || '';
+}
+
+/** ألوان خلفيات أيقونة ناعمة كالتصميم */
+const SUBJECT_VISUAL = {
+    algebra: { boxClass: 'bg-rose-100 text-rose-800', icon: 'x-y', iconType: 'text' },
+    engineering: { boxClass: 'bg-orange-100 text-orange-800', icon: Ruler, iconType: 'component' },
+    statistics: { boxClass: 'bg-violet-100 text-violet-800', icon: TrendingUp, iconType: 'component' },
+    calculus: { boxClass: 'bg-emerald-100 text-emerald-800', icon: 'fx', iconType: 'text' },
+};
+
+const defaultVisual = { boxClass: 'bg-slate-100 text-slate-700', icon: '?', iconType: 'text' };
+
+/** مستوى صعوبة افتراضي لاختبار TOPIC_24 من بطاقة «اختبار شامل» */
+const DEFAULT_EXAM_DIFFICULTY = 2;
 
 const Topics = () => {
     const navigate = useNavigate();
+    const { t, i18n } = useTranslation();
     const { subject } = useParams();
+    const isEn = i18n.language?.toLowerCase().startsWith('en');
+    const isRtl = i18n.dir() === 'rtl';
+    const [subjects, setSubjects] = useState([]);
+    const [loadError, setLoadError] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-    const subjects = [
-        {
-            name: 'الجبر',
-            nameEn: 'algebra',
-            color: 'bg-red-500',
-            icon: 'x-y',
-            iconType: 'text',
-            description: 'لوريم ايبسوم دولار سيت أميت دو لوم'
-        },
-        {
-            name: 'الهندسة',
-            nameEn: 'engineering',
-            color: 'bg-orange-500',
-            icon: Ruler,
-            iconType: 'component',
-            description: 'لوريم ايبسوم دولار سيت أميت كوير'
-        },
-        {
-            name: 'الإحصاء',
-            nameEn: 'statistics',
-            color: 'bg-blue-500',
-            icon: TrendingUp,
-            iconType: 'component',
-            description: 'لوريم ايبسوم دولار سيت أميت فولي'
-        },
-        {
-            name: 'التفاضل و التكامل',
-            nameEn: 'calculus',
-            color: 'bg-green-500',
-            icon: 'fx',
-            iconType: 'text',
-            description: 'لوريم ايبسوم دولار سيت أميت كلارين'
-        }
-    ];
+    useEffect(() => {
+        let cancelled = false;
+        (async () => {
+            setLoading(true);
+            setLoadError(null);
+            try {
+                const { data } = await api.get('/subjects');
+                if (!cancelled) {
+                    const list = Array.isArray(data?.data) ? data.data : [];
+                    setSubjects(
+                        list.map((s) => {
+                            const v = SUBJECT_VISUAL[s.slug] || defaultVisual;
+                            return {
+                                ...s,
+                                coverSrc: resolveMediaUrl(s.imageUrl),
+                                boxClass: v.boxClass,
+                                icon: v.icon,
+                                iconType: v.iconType,
+                            };
+                        }),
+                    );
+                    setLoadError(null);
+                }
+            } catch (err) {
+                if (!cancelled) {
+                    setSubjects([]);
+                    setLoadError({
+                        serverMsg: err.response?.data?.message
+                            ? String(err.response.data.message)
+                            : undefined,
+                    });
+                }
+            } finally {
+                if (!cancelled) setLoading(false);
+            }
+        })();
+        return () => {
+            cancelled = true;
+        };
+    }, []);
 
-    const handleSubjectClick = (subjectNameEn) => {
-        navigate(`/topics/${subjectNameEn}/difficulty`);
-    };
+    const displaySubjects = subject ? subjects.filter((s) => s.slug === subject) : subjects;
 
-    // If subject is provided, show sub-topics (same subjects for now)
-    const displaySubjects = subject ? subjects.filter(s => s.nameEn === subject) : subjects;
-    const pageTitle = subject
-        ? `اختر الموضوع الذي تريد التدرب عليه`
-        : `اختر الموضوع الذي تريد التدرب عليه`;
-    const pageSubtitle = subject
-        ? `كل موضوع يحتوي على مئات الأسئلة بمستويات صعوبة مختلفة`
-        : `كل موضوع يحتوي على مئات الأسئلة بمستويات صعوبة مختلفة`;
+    const subjectDisplayName = (row) =>
+        isEn ? pickLang(row.nameEn, row.nameAr) : pickLang(row.nameAr, row.nameEn);
 
     return (
-        <div className=" bg-slate-50/50 py-12 relative overflow-hidden" dir="rtl">
-            <Container>
-                {/* Breadcrumb Navigation */}
-                <div className="mb-6 flex items-center gap-2 text-slate-600 font-bold">
+        <div className="relative min-h-screen overflow-hidden bg-white py-10 md:py-12" dir={i18n.dir()}>
+            <div
+                className="pointer-events-none absolute inset-0 opacity-[0.07]"
+                style={{
+                    backgroundImage: `url(${decorativePattern})`,
+                    backgroundRepeat: 'repeat',
+                    backgroundSize: '420px',
+                }}
+            />
+            <div className="pointer-events-none absolute inset-0 bg-white/80" />
+
+            <Container className="relative z-10">
+                <div
+                    className="mb-8 flex flex-wrap items-center gap-2 text-sm font-bold md:text-base"
+                    style={{ color: '#707070' }}
+                >
                     <button
+                        type="button"
                         onClick={() => navigate('/dashboard')}
-                        className="hover:text-slate-900 transition-colors"
+                        className="transition-colors hover:opacity-80"
+                        style={{ color: '#707070' }}
                     >
-                        الرئيسية
+                        {t('topics.crumbDashboard')}
                     </button>
                     {subject && (
                         <>
-                            <ChevronLeft size={20} className="text-slate-400" />
+                            <ChevronLeft size={18} className={`shrink-0 opacity-60 ${isRtl ? 'rotate-180' : ''}`} />
                             <button
+                                type="button"
                                 onClick={() => navigate('/topics')}
-                                className="hover:text-slate-900 transition-colors"
+                                className="transition-colors hover:opacity-80"
+                                style={{ color: '#707070' }}
                             >
-                                المواضيع
+                                {t('topics.crumbTopics')}
                             </button>
-                            <ChevronLeft size={20} className="text-slate-400" />
-                            <span className="text-slate-900">
-                                {subjects.find(s => s.nameEn === subject)?.name || subject}
+                            <ChevronLeft size={18} className={`shrink-0 opacity-60 ${isRtl ? 'rotate-180' : ''}`} />
+                            <span style={{ color: '#2E3A59' }}>
+                                {(() => {
+                                    const row = subjects.find((s) => s.slug === subject);
+                                    if (!row) return subject;
+                                    return subjectDisplayName(row);
+                                })()}
                             </span>
-                            <ChevronLeft size={20} className="text-slate-400" />
-                            <span className="text-slate-900">المواضيع الفرعية</span>
+                            <ChevronLeft size={18} className={`shrink-0 opacity-60 ${isRtl ? 'rotate-180' : ''}`} />
+                            <span style={{ color: '#2E3A59' }}>{t('topics.crumbSubtopics')}</span>
                         </>
                     )}
                     {!subject && (
                         <>
-                            <ChevronLeft size={20} className="text-slate-400" />
-                            <span className="text-slate-900">المواضيع</span>
+                            <ChevronLeft size={18} className={`shrink-0 opacity-60 ${isRtl ? 'rotate-180' : ''}`} />
+                            <span style={{ color: '#2E3A59' }}>{t('topics.crumbTopics')}</span>
                         </>
                     )}
                 </div>
 
-                {/* Page Title */}
-                <div className="text-center mb-10 relative z-10">
-                    <h1 className="text-4xl md:text-5xl font-black text-slate-900 mb-4">
-                        {pageTitle}
+                <div className="relative z-10 mb-10 text-center md:mb-12">
+                    <h1
+                        className="mb-3 text-3xl font-black md:text-4xl lg:text-[2.75rem]"
+                        style={{ color: '#2E3A59' }}
+                    >
+                        {t('topics.title')}
                     </h1>
-                    <p className="text-lg text-slate-600 font-bold max-w-3xl mx-auto">
-                        {pageSubtitle}
+                    <p
+                        className="mx-auto max-w-3xl text-base font-semibold leading-relaxed md:text-lg"
+                        style={{ color: '#2E3A59', opacity: 0.85 }}
+                    >
+                        {t('topics.subtitle')}
                     </p>
                 </div>
 
-                {/* Subject Cards Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto relative z-10">
-                    {displaySubjects.map((subjectItem, idx) => (
-                        <div
-                            key={idx}
-                            onClick={() => handleSubjectClick(subjectItem.nameEn)}
-                            className="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100 hover:border-yellow-400 transition-all cursor-pointer group"
-                        >
-                            <div className="flex items-start gap-4">
-                                {/* Colored Icon Square */}
-                                <div className={`${subjectItem.color} w-16 h-16 rounded-2xl flex items-center justify-center text-white font-black text-xl flex-shrink-0 group-hover:scale-110 transition-transform`}>
-                                    {subjectItem.iconType === 'component' ? (
-                                        React.createElement(subjectItem.icon, { size: 32, strokeWidth: 2.5 })
+                {loading ? (
+                    <p className="mb-6 text-center font-bold" style={{ color: '#707070' }}>
+                        {t('topics.loading')}
+                    </p>
+                ) : null}
+                {loadError ? (
+                    <p className="mx-auto mb-6 max-w-xl text-center font-bold leading-relaxed text-red-600">
+                        {loadError.serverMsg || t('topics.loadError')}
+                    </p>
+                ) : null}
+
+                <div className="relative z-10 mx-auto grid max-w-[920px] grid-cols-1 gap-5 md:grid-cols-2 md:gap-6">
+                    {!loading && !loadError && displaySubjects.length === 0 ? (
+                        <p className="col-span-full text-center font-bold" style={{ color: '#707070' }}>
+                            {t('topics.empty')}
+                        </p>
+                    ) : null}
+                    {displaySubjects.map((subjectItem) => {
+                        const name = subjectDisplayName(subjectItem);
+                        return (
+                            <div
+                                key={subjectItem.slug}
+                                className="rounded-[1.5rem] border border-slate-200/80 bg-white p-6 shadow-[0_8px_32px_rgba(46,58,89,0.06)] md:p-7"
+                            >
+                                <div className="mb-5 flex items-start gap-4">
+                                    {subjectItem.coverSrc ? (
+                                        <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl ring-1 ring-slate-100 sm:h-16 sm:w-16">
+                                            <img
+                                                src={subjectItem.coverSrc}
+                                                alt=""
+                                                className="h-full w-full object-cover"
+                                            />
+                                        </div>
                                     ) : (
-                                        <span>{subjectItem.icon}</span>
+                                        <div
+                                            className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-xl font-black sm:h-16 sm:w-16 ${subjectItem.boxClass}`}
+                                        >
+                                            {subjectItem.iconType === 'component' ? (
+                                                React.createElement(subjectItem.icon, {
+                                                    size: 28,
+                                                    strokeWidth: 2.25,
+                                                })
+                                            ) : (
+                                                <span className="text-sm sm:text-base">{subjectItem.icon}</span>
+                                            )}
+                                        </div>
                                     )}
+
+                                    <div className="min-w-0 flex-1">
+                                        <h3
+                                            className="mb-1.5 text-xl font-black sm:text-2xl"
+                                            style={{ color: '#2E3A59' }}
+                                        >
+                                            {name}
+                                        </h3>
+                                        {(() => {
+                                            const desc = isEn
+                                                ? pickLang(subjectItem.descriptionEn, subjectItem.description)
+                                                : pickLang(subjectItem.description, subjectItem.descriptionEn);
+                                            if (!desc) {
+                                                return (
+                                                    <p className="text-sm font-bold" style={{ color: '#707070' }}>
+                                                        {t('topics.noDescription')}
+                                                    </p>
+                                                );
+                                            }
+                                            return (
+                                                <p
+                                                    className="text-sm font-bold leading-relaxed sm:text-base"
+                                                    style={{ color: '#707070' }}
+                                                >
+                                                    {desc}
+                                                </p>
+                                            );
+                                        })()}
+                                    </div>
                                 </div>
 
-                                {/* Content */}
-                                <div className="flex-1">
-                                    <h3 className="text-2xl font-black text-slate-900 mb-2">
-                                        {subjectItem.name}
-                                    </h3>
-                                    <p className="text-slate-500 font-bold text-base">
-                                        {subjectItem.description}
-                                    </p>
+                                <div className="flex gap-3" dir={i18n.dir()}>
+                                    <button
+                                        type="button"
+                                        onClick={() => navigate(`/topics/${subjectItem.slug}/difficulty`)}
+                                        className="flex-1 rounded-xl border border-slate-200 bg-white px-3 py-3 text-center text-sm font-black transition-colors hover:border-slate-300 hover:bg-slate-50 sm:text-base"
+                                        style={{ color: '#2E3A59' }}
+                                    >
+                                        {t('topics.questionBank')}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            navigate(`/exam/${subjectItem.slug}/${DEFAULT_EXAM_DIFFICULTY}`)
+                                        }
+                                        className="flex-1 rounded-xl border border-slate-200 bg-white px-3 py-3 text-center text-sm font-black transition-colors hover:border-slate-300 hover:bg-slate-50 sm:text-base"
+                                        style={{ color: '#2E3A59' }}
+                                    >
+                                        {t('topics.comprehensiveExamFor', { name })}
+                                    </button>
                                 </div>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </Container>
         </div>
@@ -138,4 +259,3 @@ const Topics = () => {
 };
 
 export default Topics;
-

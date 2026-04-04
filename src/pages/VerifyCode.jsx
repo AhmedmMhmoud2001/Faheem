@@ -2,18 +2,27 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Container from '../components/Container';
 import logo from '../assets/logo.png';
+import { api } from '../lib/api.js';
 
 const VerifyCode = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const [code, setCode] = useState('');
+    const [newPassword, setNewPassword] = useState('');
     const emailOrPhone = location.state?.emailOrPhone || '';
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Verify code and navigate to reset password
-        // For now, just navigate to login
-        navigate('/login');
+        try {
+            await api.post('/auth/reset-password', {
+                email: emailOrPhone,
+                code,
+                newPassword,
+            });
+            navigate('/login');
+        } catch {
+            alert('رمز غير صحيح أو منتهي');
+        }
     };
 
     return (
@@ -47,6 +56,17 @@ const VerifyCode = () => {
                                     onChange={(e) => setCode(e.target.value)}
                                     className="w-full bg-white border-2 border-slate-200 rounded-2xl py-4 px-6 focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 font-bold transition-all outline-none text-center text-2xl tracking-widest"
                                     maxLength="6"
+                                />
+                            </div>
+                            <div>
+                                <input
+                                    type="password"
+                                    required
+                                    minLength={8}
+                                    placeholder="كلمة المرور الجديدة"
+                                    value={newPassword}
+                                    onChange={(e) => setNewPassword(e.target.value)}
+                                    className="w-full bg-white border-2 border-slate-200 rounded-2xl py-4 px-6 focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 font-bold transition-all outline-none"
                                 />
                             </div>
 

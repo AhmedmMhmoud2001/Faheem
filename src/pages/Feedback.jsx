@@ -2,16 +2,33 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Container from '../components/Container';
 import { User, Mail, Star, X } from 'lucide-react';
+import { api } from '../lib/api.js';
 
 const Feedback = () => {
     const navigate = useNavigate();
     const [rating, setRating] = useState(0);
     const [hoveredRating, setHoveredRating] = useState(0);
     const [showSuccess, setShowSuccess] = useState(false);
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [comment, setComment] = useState('');
 
-    const handleSend = () => {
-        // Here you would send the data to backend
-        setShowSuccess(true);
+    const handleSend = async () => {
+        if (rating < 1) {
+            alert('اختر عدد النجوم');
+            return;
+        }
+        try {
+            await api.post('/feedback', {
+                rating,
+                name: name || undefined,
+                email: email || undefined,
+                comment,
+            });
+            setShowSuccess(true);
+        } catch {
+            alert('تعذر إرسال التقييم.');
+        }
     };
 
     const handleClose = () => {
@@ -61,6 +78,8 @@ const Feedback = () => {
                                 <input
                                     type="text"
                                     placeholder="الاسم"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
                                     className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-5 pr-16 pl-6 text-lg font-bold text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#FFD131] focus:ring-1 focus:ring-[#FFD131] transition-all"
                                 />
                             </div>
@@ -73,6 +92,8 @@ const Feedback = () => {
                                 <input
                                     type="email"
                                     placeholder="عنوان البريد الإلكتروني"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
                                     className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-5 pr-16 pl-6 text-lg font-bold text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#FFD131] focus:ring-1 focus:ring-[#FFD131] transition-all"
                                 />
                             </div>
@@ -81,6 +102,8 @@ const Feedback = () => {
                             <textarea
                                 rows="5"
                                 placeholder="أضف تعليقاتك"
+                                value={comment}
+                                onChange={(e) => setComment(e.target.value)}
                                 className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-6 text-lg font-bold text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#FFD131] focus:ring-1 focus:ring-[#FFD131] transition-all resize-none"
                             ></textarea>
                         </div>

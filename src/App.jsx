@@ -103,7 +103,7 @@ function App() {
             <Feedback />
           </Layout>
         } />
-        <Route path="/explanation" element={ // In a real app this might be /explanation/:id
+        <Route path="/explanation/:questionId?" element={
           <Layout>
             <Explanation />
           </Layout>
