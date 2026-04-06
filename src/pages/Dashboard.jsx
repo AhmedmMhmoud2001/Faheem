@@ -7,6 +7,7 @@ import img1 from '../assets/img1.png';
 import img2 from '../assets/img2.png';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../lib/api.js';
+import { useEntitlement } from '../hooks/useEntitlement.js';
 
 const slugToColor = {
     statistics: 'bg-blue-700',
@@ -48,6 +49,7 @@ const Dashboard = () => {
         trialEnds != null
             ? Math.max(0, Math.ceil((new Date(trialEnds) - nowMs) / 86400000))
             : null;
+    const { hasAccess, subscriptionActive } = useEntitlement();
 
     const subjects = useMemo(() => {
         const notStarted = t('dashboard.notStarted');
@@ -91,7 +93,35 @@ const Dashboard = () => {
                     </h1>
                 </div>
 
-                {trialDaysLeft != null && trialDaysLeft > 0 && (
+                {/* Active subscription banner */}
+                {user?.entitlement?.subscriptionStatus === 'ACTIVE' && (
+                    <div className="bg-emerald-50 rounded-[1.2rem] p-3 md:p-4 mb-3 border border-emerald-200 flex flex-col md:flex-row justify-between items-center gap-3">
+                        <div className="text-start flex-1">
+                            <h2 className="text-2xl font-black text-emerald-800 mb-1">{t('subscriptionsPage.activeTitle')}</h2>
+                            {user?.entitlement?.planSlug && (
+                                <p className="text-emerald-800 font-bold text-base">
+                                    {t('subscriptionsPage.planLabel', { slug: user.entitlement.planSlug })}
+                                </p>
+                            )}
+                            {user?.entitlement?.currentPeriodStart && user?.entitlement?.currentPeriodEnd && (
+                                <p className="text-emerald-700 font-bold text-sm">
+                                    {i18n.language?.startsWith('en')
+                                        ? `From ${new Date(user.entitlement.currentPeriodStart).toLocaleDateString('en-GB')} to ${new Date(user.entitlement.currentPeriodEnd).toLocaleDateString('en-GB')}`
+                                        : `من ${new Date(user.entitlement.currentPeriodStart).toLocaleDateString('ar-EG')} إلى ${new Date(user.entitlement.currentPeriodEnd).toLocaleDateString('ar-EG')}`}
+                                </p>
+                            )}
+                        </div>
+                        <button
+                            onClick={() => navigate('/topics')}
+                            className="bg-emerald-700 hover:bg-emerald-800 text-white px-10 py-3 rounded-2xl font-black text-xl transition-all shadow-xl shadow-emerald-200/40 transform hover:-translate-y-1 active:scale-95"
+                        >
+                            {t('subscriptionsPage.openDashboard')}
+                        </button>
+                    </div>
+                )}
+
+                {/* Trial banner when no active subscription */}
+                {trialDaysLeft != null && trialDaysLeft > 0 && !subscriptionActive && (
                     <div className="bg-[#FBFBFC] rounded-[1.2rem] p-3 md:p-4 mb-3 shadow-[0_10px_40px_rgba(0,0,0,0.02)] border border-slate-50 flex flex-col md:flex-row justify-between items-center gap-3 bg-orange-50">
                         <div className="text-start flex-1">
                             <h2 className="text-2xl font-black text-slate-800 mb-2">{t('dashboard.trialTitle')}</h2>
@@ -102,6 +132,22 @@ const Dashboard = () => {
                             className="bg-[#FFD131] hover:bg-slate-900 hover:text-white px-12 py-3 rounded-2xl font-black text-xl transition-all shadow-xl shadow-yellow-200/40 transform hover:-translate-y-1 active:scale-95"
                         >
                             {t('dashboard.subscribe')}
+                        </button>
+                    </div>
+                )}
+
+                {/* Expired trial banner - shown only when trial ended and no subscription */}
+                {trialDaysLeft === 0 && !subscriptionActive && (
+                    <div className="rounded-[1.2rem] p-3 md:p-4 mb-3 border border-red-100 bg-red-50 flex flex-col md:flex-row justify-between items-center gap-3">
+                        <div className="text-start flex-1">
+                            <h2 className="text-2xl font-black text-red-700 mb-2">{t('subscriptionWall.title')}</h2>
+                            <p className="text-red-500 font-bold text-lg">{t('subscriptionWall.body')}</p>
+                        </div>
+                        <button
+                            onClick={() => navigate('/subscriptions')}
+                            className="bg-red-600 hover:bg-slate-900 text-white px-10 py-3 rounded-2xl font-black text-xl transition-all shadow-xl transform hover:-translate-y-1 active:scale-95"
+                        >
+                            {t('subscriptionWall.cta')}
                         </button>
                     </div>
                 )}

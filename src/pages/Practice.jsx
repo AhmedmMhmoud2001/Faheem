@@ -1,16 +1,21 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { useNavigate, useParams, useLocation, useSearchParams } from 'react-router-dom';
 import Container from '../components/Container';
 import { ChevronRight, ArrowLeft } from 'lucide-react';
 import imgbanner from '../assets/imgbanner.png';
 import { api, getLearnerLang, resolveMediaUrl } from '../lib/api.js';
+import SubscriptionWall from '../components/SubscriptionWall.jsx';
+import { useEntitlement } from '../hooks/useEntitlement.js';
 
-const PRACTICE_LIMIT = 5;
+const PRACTICE_LIMIT_FALLBACK = 5;
 
 const Practice = () => {
     const navigate = useNavigate();
     const { subject, level } = useParams();
     const location = useLocation();
+    const [searchParams] = useSearchParams();
+    const subCategorySlug = searchParams.get('sub') || null;
+    const { hasAccess, trialDaysLeft } = useEntitlement();
     const [currentQuestion, setCurrentQuestion] = useState(0);
     const [attemptId, setAttemptId] = useState(null);
     const [attempt, setAttempt] = useState(null);
@@ -18,6 +23,22 @@ const Practice = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [submitting, setSubmitting] = useState(false);
+    const [practiceTpl, setPracticeTpl] = useState(null);
+
+    useEffect(() => {
+        let cancelled = false;
+        (async () => {
+            try {
+                const { data } = await api.get('/practice/template');
+                if (!cancelled) setPracticeTpl(data);
+            } catch {
+                /* ignore, will use fallback */
+            }
+        })();
+        return () => {
+            cancelled = true;
+        };
+    }, []);
 
     const totalQuestions = attempt?.questionIds?.length || 0;
     const questions = attempt?.questions || [];
@@ -31,7 +52,11 @@ const Practice = () => {
     const refreshStageStats = useCallback(async () => {
         try {
             const { data } = await api.get('/practice/stats', {
-                params: { subjectSlug: subject, difficulty: Number(level) },
+                params: {
+                    subjectSlug: subject,
+                    difficulty: Number(level),
+                    ...(subCategorySlug ? { subCategorySlug } : {}),
+                },
             });
             setStageStats({
                 answeredInStage: data.answeredInStage ?? 0,
@@ -40,18 +65,24 @@ const Practice = () => {
         } catch {
             /* keep previous */
         }
-    }, [subject, level]);
+    }, [subject, level, subCategorySlug]);
 
     useEffect(() => {
         let cancelled = false;
         (async () => {
+            // انتظر حتى نحصل على إعدادات PRACTICE من الخادم لتحديد limit الصحيح
+            if (practiceTpl == null) return;
             try {
                 let aid = location.state?.attemptId;
                 if (!aid) {
                     const { data } = await api.post('/practice/sessions', {
                         subjectSlug: subject,
+                        ...(subCategorySlug ? { subCategorySlug } : {}),
                         difficulty: Number(level),
-                        limit: PRACTICE_LIMIT,
+                        limit: Math.min(
+                            20,
+                            Math.max(1, practiceTpl?.questionCount || PRACTICE_LIMIT_FALLBACK)
+                        ),
                         lang: getLearnerLang(),
                     });
                     aid = data.attemptId;
@@ -67,7 +98,21 @@ const Practice = () => {
                 await refreshAttempt(aid);
                 await refreshStageStats();
             } catch (e) {
-                if (!cancelled) setError(e.response?.data?.message || 'تعذر بدء التدريب');
+                if (!cancelled) {
+                    const status = e.response?.status;
+                    const msg = e.response?.data?.message;
+                    if (status === 403) {
+                        setError('يجب الاشتراك أو تفعيل التجربة المجانية لبدء التدريب');
+                    } else if (status === 404 && msg === 'Subject not found') {
+                        setError('المادة غير موجودة');
+                    } else if (status === 404 && msg === 'No questions for this filter') {
+                        setError('لا توجد أسئلة لهذا المستوى في هذا التصنيف بعد');
+                    } else if (status === 404) {
+                        setError(msg || 'تعذر بدء التدريب');
+                    } else {
+                        setError(msg || 'تعذر بدء التدريب');
+                    }
+                }
             } finally {
                 if (!cancelled) setLoading(false);
             }
@@ -75,7 +120,7 @@ const Practice = () => {
         return () => {
             cancelled = true;
         };
-    }, [subject, level, location.state, refreshAttempt, refreshStageStats]);
+    }, [subject, level, subCategorySlug, location.state, refreshAttempt, refreshStageStats, practiceTpl]);
 
     const showResult = Boolean(currentQ?.userAnswerIndex != null);
     const selectedAnswer = currentQ?.userAnswerIndex ?? null;
@@ -106,7 +151,7 @@ const Practice = () => {
             try {
                 await api.post(`/exams/attempts/${attemptId}/submit`);
                 await refreshStageStats();
-                navigate('/feedback');
+                navigate('/feedback', { state: { source: 'practice', attemptId } });
             } catch (e) {
                 alert(e.response?.data?.message || 'تعذر إنهاء الجلسة');
             } finally {
@@ -161,6 +206,10 @@ const Practice = () => {
                 </button>
             </div>
         );
+    }
+
+    if (!hasAccess) {
+        return <SubscriptionWall trialDaysLeft={trialDaysLeft} />;
     }
 
     return (

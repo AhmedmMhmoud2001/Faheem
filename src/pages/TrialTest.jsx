@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Container from '../components/Container';
@@ -16,18 +16,59 @@ const TrialTest = () => {
     const { t, i18n } = useTranslation();
     const navigate = useNavigate();
     const [starting, setStarting] = useState(false);
+    const [tpl, setTpl] = useState({ isActive: true, questionCount: 24, totalDurationSec: 2700, perQuestionSec: null });
+
+    useEffect(() => {
+        let cancelled = false;
+        (async () => {
+            try {
+                const { data } = await api.get('/exams/trial-template');
+                if (!cancelled && data) {
+                    setTpl({
+                        isActive: Boolean(data.isActive),
+                        questionCount: Number(data.questionCount ?? 24),
+                        totalDurationSec: data.totalDurationSec ?? null,
+                        perQuestionSec: data.perQuestionSec ?? null
+                    });
+                }
+            } catch {
+                /* keep defaults if fetch fails */
+            }
+        })();
+        return () => {
+            cancelled = true;
+        };
+    }, []);
 
     const featuresData = t('trialTest.features', { returnObjects: true });
     const instructionsData = t('trialTest.instructions', { returnObjects: true });
 
     const features = useMemo(() => {
         const list = Array.isArray(featuresData) ? featuresData : [];
-        return ICON_CONFIG.map((cfg, idx) => ({
-            ...cfg,
-            value: list[idx]?.value ?? '',
-            description: list[idx]?.description ?? ''
-        }));
-    }, [featuresData]);
+        // Derive dynamic texts
+        const qCount = tpl.questionCount;
+        const minutes =
+            tpl.totalDurationSec != null
+                ? Math.ceil(tpl.totalDurationSec / 60)
+                : tpl.perQuestionSec != null
+                ? Math.ceil((qCount * tpl.perQuestionSec) / 60)
+                : 45;
+        const derived = [
+            { value: t('trialTest.dynamic.questions', { n: qCount }), description: t('trialTest.dynamic.questionsDesc') },
+            { value: t('trialTest.dynamic.minutes', { n: minutes }), description: t('trialTest.dynamic.minutesDesc') },
+        ];
+        // Merge with remaining static items (icons list has 4)
+        return ICON_CONFIG.map((cfg, idx) => {
+            const dyn = derived[idx];
+            const fallbackVal = list[idx]?.value ?? '';
+            const fallbackDesc = list[idx]?.description ?? '';
+            return {
+                ...cfg,
+                value: dyn?.value ?? fallbackVal,
+                description: dyn?.description ?? fallbackDesc,
+            };
+        });
+    }, [featuresData, tpl, t]);
 
     const instructions = useMemo(
         () => (Array.isArray(instructionsData) ? instructionsData : []),

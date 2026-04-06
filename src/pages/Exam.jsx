@@ -3,10 +3,13 @@ import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import Container from '../components/Container';
 import { ChevronRight, ChevronLeft, CheckCircle2, XCircle } from 'lucide-react';
 import { api, getLearnerLang } from '../lib/api.js';
+import SubscriptionWall from '../components/SubscriptionWall.jsx';
+import { useEntitlement } from '../hooks/useEntitlement.js';
 
 const Exam = () => {
     const navigate = useNavigate();
     const { subject, level } = useParams();
+    const { hasAccess, trialDaysLeft } = useEntitlement();
     const location = useLocation();
     const [currentQuestion, setCurrentQuestion] = useState(0);
     const [attemptId, setAttemptId] = useState(null);
@@ -178,6 +181,10 @@ const Exam = () => {
                 </button>
             </div>
         );
+    }
+
+    if (!hasAccess) {
+        return <SubscriptionWall trialDaysLeft={trialDaysLeft} />;
     }
 
     return (

@@ -13,27 +13,47 @@ const Feedback = () => {
     const [email, setEmail] = useState('');
     const [comment, setComment] = useState('');
 
+    function isValidEmail(v) {
+        if (!v) return true; // اختياري
+        const s = String(v).trim();
+        // فحص بسيط لصيغة البريد
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
+    }
+
     const handleSend = async () => {
         if (rating < 1) {
             alert('اختر عدد النجوم');
             return;
         }
+        if (!comment || !comment.trim()) {
+            alert('يرجى كتابة تعليقك.');
+            return;
+        }
+        if (!isValidEmail(email)) {
+            alert('صيغة البريد الإلكتروني غير صحيحة. يرجى إدخال بريد صالح.');
+            return;
+        }
         try {
             await api.post('/feedback', {
                 rating,
-                name: name || undefined,
-                email: email || undefined,
-                comment,
+                name: name?.trim() || undefined,
+                email: email?.trim() || undefined,
+                comment: comment.trim(),
             });
             setShowSuccess(true);
-        } catch {
-            alert('تعذر إرسال التقييم.');
+        } catch (e) {
+            const msg = e?.response?.data?.message;
+            if (msg && typeof msg === 'string') {
+                alert(msg);
+            } else {
+                alert('تعذر إرسال التقييم.');
+            }
         }
     };
 
     const handleClose = () => {
-        // Navigate to result or home after feedback
-        navigate('/result');
+        // Navigate to home after feedback
+        navigate('/');
     };
 
     return (
@@ -117,7 +137,7 @@ const Feedback = () => {
                                 إرسال
                             </button>
                             <button
-                                onClick={() => navigate('/result')}
+                                onClick={() => navigate('/')}
                                 className="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-600 py-4 rounded-xl font-black text-xl transition-all"
                             >
                                 إلغاء

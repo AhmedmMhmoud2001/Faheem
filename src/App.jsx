@@ -73,7 +73,17 @@ function App() {
             <Topics />
           </Layout>
         } />
+        <Route path="/topics/:subject" element={
+          <Layout>
+            <Topics />
+          </Layout>
+        } />
         <Route path="/topics/:subject/difficulty" element={
+          <Layout>
+            <DifficultyLevel />
+          </Layout>
+        } />
+        <Route path="/topics/:subject/:subcategory/difficulty" element={
           <Layout>
             <DifficultyLevel />
           </Layout>

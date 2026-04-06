@@ -200,6 +200,28 @@
     "tip": "Tip: make sure you have enough time and a distraction-free space before you start",
     "startError": "Could not start the test. Sign in and check your subscription or free trial."
   },
+  "subscriptionsPage": {
+    "title": "Subscriptions",
+    "backToDashboard": "Back to dashboard",
+    "activeTitle": "Your subscription is active",
+    "planLabel": "Plan: {{slug}}",
+    "activeBody": "You have full access to all questions and exams during your subscription period.",
+    "openDashboard": "Open dashboard",
+    "trialTitle": "Your trial is active",
+    "trialDaysLeft": "{{count}} days left in your trial",
+    "taxNote": "Price excludes taxes (if applicable)",
+    "subscribeCta": "Subscribe now",
+    "faqTitle": "Payment FAQs",
+    "faqEmpty": "No payment FAQs yet.",
+    "features": [
+      "Full access to all questions (+1000)",
+      "Unlimited trial exams",
+      "Detailed performance reports",
+      "Download exams as PDF",
+      "New questions monthly",
+      "Continuous support"
+    ]
+  },
   "examResult": {
     "scorePrefix": "You scored",
     "scoreMid": "out of",
@@ -320,7 +342,12 @@
     "loading": "Loading subjects…",
     "loadError": "Could not load subjects. Check your connection and VITE_API_URL.",
     "empty": "No active subjects right now.",
-    "noDescription": "—"
+    "noDescription": "—",
+    "subtopicsTitle": "Subcategories",
+    "subLoading": "Loading subcategories…",
+    "subLoadError": "Could not load subcategories.",
+    "noSubcategories": "No subcategories for this subject.",
+    "questionsCount": "questions"
   },
   "difficulty": {
     "crumbLevel": "Choose level",
@@ -333,5 +360,38 @@
       "3": { "name": "Hard", "subtitle": "For advanced learners" },
       "4": { "name": "Very hard", "subtitle": "Expert level" }
     }
+  },
+  "trialTest": {
+    "title": "Comprehensive Trial Exam",
+    "subtitle": "A full mock exam covering all topics with a realistic timer.",
+    "dynamic": {
+      "questions": "{{n}} questions",
+      "questionsDesc": "Broad coverage across multiple topics, selected at random",
+      "minutes": "{{n}} minutes",
+      "minutesDesc": "Timer to simulate the real exam experience"
+    },
+    "features": [
+      { "value": "—", "description": "—" },
+      { "value": "—", "description": "—" },
+      { "value": "Mixed levels", "description": "Questions from all difficulty levels" },
+      { "value": "Detailed report", "description": "Comprehensive analysis of performance and results" }
+    ],
+    "instructionsTitle": "Before you start",
+    "instructions": [
+      "Ensure a stable internet connection during the session.",
+      "Do not close the page until you finish or time runs out.",
+      "Total time may vary based on the template configuration."
+    ],
+    "start": "Start now",
+    "starting": "Starting…",
+    "startError": "Could not start the exam. Check your access or try again.",
+    "tip": "You can return later to review your results and progress."
+  },
+  "subscriptionWall": {
+    "title": "Your trial has ended",
+    "body": "Your free trial period has expired. Subscribe now to access all questions and exams.",
+    "cta": "View subscription plans",
+    "daysLeft_one": "{{count}} day left",
+    "daysLeft_other": "{{count}} days left"
   }
 }

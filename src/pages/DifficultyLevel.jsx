@@ -5,6 +5,8 @@ import Container from '../components/Container';
 import { ChevronLeft } from 'lucide-react';
 import { api } from '../lib/api.js';
 import { useAuth } from '../context/AuthContext';
+import SubscriptionWall from '../components/SubscriptionWall.jsx';
+import { useEntitlement } from '../hooks/useEntitlement.js';
 
 import decorativePattern from '../assets/decorative-icons.png';
 import difficultyImgL1 from '../assets/Frame 1984078966.png';
@@ -41,10 +43,12 @@ function DifficultyIcon({ level, label }) {
 const DifficultyLevel = () => {
     const navigate = useNavigate();
     const { t, i18n } = useTranslation();
-    const { subject } = useParams();
+    const { subject, subcategory } = useParams();
     const isEn = i18n.language?.toLowerCase().startsWith('en');
     const { isLoggedIn, loading: authLoading } = useAuth();
+    const { hasAccess, trialDaysLeft } = useEntitlement();
     const [subjectLabel, setSubjectLabel] = useState(null);
+    const [subcategoryLabel, setSubcategoryLabel] = useState(null);
     const [progressPct, setProgressPct] = useState({ 1: 0, 2: 0, 3: 0, 4: 0 });
     const [statsLoading, setStatsLoading] = useState(true);
 
@@ -89,6 +93,28 @@ const DifficultyLevel = () => {
         };
     }, [subject, isEn, t]);
 
+    // Load subcategory label if subcategory param present
+    useEffect(() => {
+        if (!subcategory || !subject) {
+            setSubcategoryLabel(null);
+            return;
+        }
+        let cancelled = false;
+        (async () => {
+            try {
+                const { data } = await api.get(`/subjects/${subject}/subcategories`);
+                const list = Array.isArray(data?.data) ? data.data : [];
+                const row = list.find((s) => s.slug === subcategory);
+                if (!cancelled && row) {
+                    setSubcategoryLabel(isEn ? pickLang(row.nameEn, row.nameAr) : pickLang(row.nameAr, row.nameEn));
+                }
+            } catch {
+                // ignore – label will fall back to slug
+            }
+        })();
+        return () => { cancelled = true; };
+    }, [subject, subcategory, isEn]);
+
     const loadStageProgress = useCallback(async () => {
         if (!subject) return;
         if (!isLoggedIn) {
@@ -102,11 +128,20 @@ const DifficultyLevel = () => {
         await Promise.all(
             levels.map(async (level) => {
                 try {
+                    const statsParams = {
+                        subjectSlug: subject,
+                        difficulty: level,
+                        ...(subcategory ? { subCategorySlug: subcategory } : {}),
+                    };
+                    const countParams = {
+                        difficulty: level,
+                        limit: 1,
+                        page: 1,
+                        ...(subcategory ? { subCategorySlug: subcategory } : {}),
+                    };
                     const [statsRes, countRes] = await Promise.all([
-                        api.get('/practice/stats', { params: { subjectSlug: subject, difficulty: level } }),
-                        api.get(`/subjects/${subject}/questions`, {
-                            params: { difficulty: level, limit: 1, page: 1 },
-                        }),
+                        api.get('/practice/stats', { params: statsParams }),
+                        api.get(`/subjects/${subject}/questions`, { params: countParams }),
                     ]);
                     const total = countRes.data?.meta?.total ?? 0;
                     const answered = statsRes.data?.answeredInStage ?? 0;
@@ -123,7 +158,7 @@ const DifficultyLevel = () => {
         );
         setProgressPct(next);
         setStatsLoading(false);
-    }, [subject, isLoggedIn]);
+    }, [subject, subcategory, isLoggedIn]);
 
     useEffect(() => {
         if (authLoading) return;
@@ -135,10 +170,19 @@ const DifficultyLevel = () => {
         t(`subjectLabels.${subject}`, { defaultValue: subject || t('difficulty.fallbackSubject') });
 
     const handleDifficultyClick = (level) => {
-        navigate(`/practice/${subject}/${level}`);
+        if (subcategory) {
+            navigate(`/practice/${subject}/${level}?sub=${subcategory}`);
+        } else {
+            navigate(`/practice/${subject}/${level}`);
+        }
     };
 
     const isRtl = i18n.dir() === 'rtl';
+
+    // Block access when trial expired and no active subscription
+    if (!hasAccess) {
+        return <SubscriptionWall trialDaysLeft={trialDaysLeft} />;
+    }
 
     return (
         <div className="relative min-h-screen overflow-hidden bg-[#F5F6FA] py-8 md:py-10" dir={i18n.dir()}>
@@ -173,7 +217,20 @@ const DifficultyLevel = () => {
                         {t('topics.crumbTopics')}
                     </button>
                     <ChevronLeft size={18} className={`shrink-0 opacity-60 ${isRtl ? 'rotate-180' : ''}`} />
-                    <span style={{ color: '#2E3A59' }}>{subjectName}</span>
+                    <button
+                        type="button"
+                        onClick={() => navigate(`/topics/${subject}`)}
+                        className="transition-colors hover:opacity-80"
+                        style={{ color: '#707070' }}
+                    >
+                        {subjectName}
+                    </button>
+                    {subcategory && (
+                        <>
+                            <ChevronLeft size={18} className={`shrink-0 opacity-60 ${isRtl ? 'rotate-180' : ''}`} />
+                            <span style={{ color: '#2E3A59' }}>{subcategoryLabel || subcategory}</span>
+                        </>
+                    )}
                     <ChevronLeft size={18} className={`shrink-0 opacity-60 ${isRtl ? 'rotate-180' : ''}`} />
                     <span style={{ color: '#2E3A59' }}>{t('difficulty.crumbLevel')}</span>
                 </div>

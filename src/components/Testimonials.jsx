@@ -74,6 +74,8 @@ const Testimonials = () => {
 
                     <div className="w-full lg:max-w-3xl">
                         <Swiper
+                            key={i18n.language}
+                            dir={i18n.dir()}
                             modules={[Pagination, Autoplay]}
                             spaceBetween={20}
                             slidesPerView={1}

@@ -96,6 +96,8 @@ const TestSection = () => {
             <Container>
                 <div className="mb-12">
                     <Swiper
+                        key={i18n.language}
+                        dir={i18n.dir()}
                         modules={[Autoplay]}
                         spaceBetween={24}
                         slidesPerView={1}

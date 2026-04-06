@@ -11,7 +11,7 @@ const pickLang = (isEn, ar, en) => {
     return ar || '';
 };
 
-const defaultFeatures = [
+const defaultFeaturesAr = [
     'الوصول الكامل لجميع الأسئلة (+1000)',
     'اختبارات تجريبية غير محدودة',
     'تقارير تفصيلية للأداء',
@@ -19,25 +19,40 @@ const defaultFeatures = [
     'أسئلة جديدة شهرياً',
     'دعم فني متواصل',
 ];
+const defaultFeaturesEn = [
+    'Full access to all questions (+1000)',
+    'Unlimited trial exams',
+    'Detailed performance reports',
+    'Download exams as PDF',
+    'New questions monthly',
+    'Continuous support',
+];
 
 const Subscriptions = () => {
     const navigate = useNavigate();
     const { t, i18n } = useTranslation();
     const { isLoggedIn, user, loading: authLoading, refreshMe } = useAuth();
+    const featuresFromI18n = t('subscriptionsPage.features', { returnObjects: true });
+    const isEn = i18n.language?.startsWith('en');
+    const featuresList = Array.isArray(featuresFromI18n) && featuresFromI18n.length > 0
+        ? featuresFromI18n
+        : (isEn ? defaultFeaturesEn : defaultFeaturesAr);
     const [plans, setPlans] = useState([
         {
             name: 'الباقة الشهرية',
             price: '700',
             currency: '$',
             slug: 'monthly',
-            features: defaultFeatures,
+            interval: 'month',
+            features: featuresList,
         },
         {
             name: 'الباقة السنوية',
             price: '1400',
             currency: '$',
             slug: 'yearly',
-            features: defaultFeatures,
+            interval: 'year',
+            features: featuresList,
         },
     ]);
 
@@ -54,12 +69,13 @@ const Subscriptions = () => {
                     price: String(Math.round(p.priceCents / 100)),
                     currency: p.currency === 'USD' ? '$' : p.currency,
                     slug: p.slug,
-                    features: defaultFeatures,
+                    interval: p.interval,
+                    features: featuresList,
                 }));
                 if (list.length) setPlans(list);
             })
             .catch(() => {});
-    }, []);
+    }, [featuresList]);
 
     const entitlement = user?.entitlement;
     const trialEnds = user?.entitlement?.trialEndsAt;
@@ -81,7 +97,7 @@ const Subscriptions = () => {
             .catch(() => setPaymentFaqRemote(null));
     }, []);
 
-    const isEn = i18n.language?.startsWith('en');
+    // isEn already defined above
     const faqs = useMemo(() => {
         const apiItems = paymentFaqRemote?.items;
         if (apiItems && apiItems.length > 0) {
@@ -129,6 +145,13 @@ const Subscriptions = () => {
                             <p className="mt-2 font-bold text-emerald-800">{t('subscriptionsPage.planLabel', { slug: entitlement.planSlug })}</p>
                         )}
                         <p className="mt-2 font-bold text-emerald-800/90">{t('subscriptionsPage.activeBody')}</p>
+                        {entitlement?.currentPeriodStart && entitlement?.currentPeriodEnd && (
+                            <p className="mt-1 font-bold text-emerald-800/90">
+                                {isEn
+                                    ? `From ${new Date(entitlement.currentPeriodStart).toLocaleDateString('en-GB')} to ${new Date(entitlement.currentPeriodEnd).toLocaleDateString('en-GB')}`
+                                    : `من ${new Date(entitlement.currentPeriodStart).toLocaleDateString('ar-EG')} إلى ${new Date(entitlement.currentPeriodEnd).toLocaleDateString('ar-EG')}`}
+                            </p>
+                        )}
                         <Link
                             to="/dashboard"
                             className="mt-4 inline-flex items-center gap-2 rounded-xl bg-emerald-700 px-5 py-2.5 font-black text-white transition hover:bg-emerald-800"
@@ -156,7 +179,14 @@ const Subscriptions = () => {
                 )}
 
                 <div className="mb-16 grid grid-cols-1 gap-8 md:grid-cols-2">
-                    {plans.map((plan, idx) => (
+                    {plans.map((plan, idx) => {
+                        const intervalDays = { day: 1, week: 7, month: 30, year: 365 };
+                        const days = intervalDays[plan.interval] ?? null;
+                        const daysLine = days != null
+                            ? (isEn ? `${days} days of access` : `${days} يوم وصول`)
+                            : null;
+                        const planFeatures = daysLine ? [daysLine, ...plan.features] : plan.features;
+                        return (
                         <div
                             key={plan.slug || idx}
                             className="m-6 rounded-[2rem] border border-slate-100 bg-white p-6 shadow-sm transition-all hover:border-yellow-400"
@@ -174,7 +204,7 @@ const Subscriptions = () => {
                             <hr className="mb-6 text-slate-200" />
 
                             <div className="mb-8 space-y-3">
-                                {plan.features.map((feature, fIdx) => (
+                                {planFeatures.map((feature, fIdx) => (
                                     <div key={fIdx} className={`flex items-center gap-3 ${isRtl ? 'flex-row-reverse' : ''}`}>
                                         <Check size={20} className="flex-shrink-0 text-green-600" strokeWidth={3} />
                                         <span className="text-base font-bold text-slate-700">{feature}</span>
@@ -190,7 +220,7 @@ const Subscriptions = () => {
                                 {t('subscriptionsPage.subscribeCta')}
                             </button>
                         </div>
-                    ))}
+                    )})}
                 </div>
 
                 <div className="mt-16">

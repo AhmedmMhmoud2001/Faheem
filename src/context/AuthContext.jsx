@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import axios from 'axios';
 import { api, setTokens, clearTokens, getAccessToken, resolveMediaUrl } from '../lib/api.js';
 
-const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api/v1';
+const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:4001/api/v1';
 
 const AuthContext = createContext();
 

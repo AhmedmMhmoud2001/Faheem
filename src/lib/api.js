@@ -62,11 +62,35 @@ export const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
+// Public GET endpoints that must NOT send Authorization (render on homepage and topics)
+const PUBLIC_PATHS = [
+  /^\/hero\b/,
+  /^\/home-stats\b/,
+  /^\/home-video\b/,
+  /^\/why-us\b/,
+  /^\/about\b/,
+  /^\/testimonials\b/,
+  /^\/faq\b/,
+  /^\/contact\/info\b/,
+  /^\/subjects\b/, // includes /subjects and /subjects/:slug/subcategories
+];
+
+function isPublicPath(url) {
+  if (!url || typeof url !== 'string') return false;
+  const path = url.split('?')[0];
+  return PUBLIC_PATHS.some((re) => re.test(path));
+}
+
 api.interceptors.request.use((config) => {
   const t = getAccessToken();
-  if (t) config.headers.Authorization = `Bearer ${t}`;
-  const method = (config.method || 'get').toLowerCase();
   const url = config.url || '';
+  // Skip Authorization for public endpoints
+  if (t && !isPublicPath(url)) {
+    config.headers.Authorization = `Bearer ${t}`;
+  } else if (config.headers && config.headers.Authorization) {
+    delete config.headers.Authorization;
+  }
+  const method = (config.method || 'get').toLowerCase();
   if (method === 'get' && pathNeedsLangQuery(url)) {
     config.params = { ...config.params, lang: getLearnerLang() };
   }

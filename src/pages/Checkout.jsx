@@ -1,7 +1,24 @@
 import React from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import { api } from '../lib/api.js';
+import { useAuth } from '../context/AuthContext';
 import Container from '../components/Container';
 
 const Checkout = () => {
+    const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
+    const { refreshMe } = useAuth();
+    const planSlug = searchParams.get('plan') || 'monthly';
+
+    async function handlePayNow() {
+        try {
+            await api.post('/mock/confirm', { planSlug });
+            await refreshMe();
+            navigate('/dashboard');
+        } catch (e) {
+            alert(e?.response?.data?.message || 'تعذر إتمام الدفع التجريبي');
+        }
+    }
     return (
         <div className="bg-[#F8FAFC] min-h-screen py-10 relative overflow-hidden" dir="rtl">
             {/* Educational Pattern Background */}
@@ -97,7 +114,7 @@ const Checkout = () => {
 
                         {/* Pay Button */}
                         <div className="pt-6 flex justify-end">
-                            <button className="w-full md:w-auto min-w-[280px] bg-[#FFD131] hover:bg-slate-900 hover:text-white text-slate-900 py-4 px-6 rounded-[1.5rem] font-black text-3xl transition-all duration-300 transform hover:-translate-y-1 active:scale-95 shadow-xl shadow-yellow-200/50 hover:shadow-slate-200">
+                            <button onClick={handlePayNow} className="w-full md:w-auto min-w-[280px] bg-[#FFD131] hover:bg-slate-900 hover:text-white text-slate-900 py-4 px-6 rounded-[1.5rem] font-black text-3xl transition-all duration-300 transform hover:-translate-y-1 active:scale-95 shadow-xl shadow-yellow-200/50 hover:shadow-slate-200">
                                 ادفع الآن
                             </button>
                         </div>
