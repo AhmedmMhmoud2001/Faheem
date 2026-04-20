@@ -1,8 +1,10 @@
-import React from 'react';
+﻿import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Container from '../components/Container';
 import { ClipboardList, Check, X } from 'lucide-react';
+import { api } from '../lib/api.js';
+import MathText from '../components/MathText.jsx';
 
 const ExamResult = () => {
     const { t, i18n } = useTranslation();
@@ -14,10 +16,42 @@ const ExamResult = () => {
         correctCount = 16,
         wrongCount = 8,
         answers = [],
+        attemptId = null,
     } = location.state || {};
 
     const resultDots =
         answers.length > 0 ? answers : Array(24).fill(null).map((_, i) => (i < 8 ? 'wrong' : 'correct'));
+
+    const [attempt, setAttempt] = useState(null);
+    const [loading, setLoading] = useState(Boolean(attemptId));
+
+    useEffect(() => {
+        let cancelled = false;
+        if (!attemptId) {
+            setAttempt(null);
+            setLoading(false);
+            return () => { cancelled = true; };
+        }
+        (async () => {
+            try {
+                const { data } = await api.get(`/exams/attempts/${attemptId}`);
+                if (!cancelled) setAttempt(data);
+            } catch {
+                if (!cancelled) setAttempt(null);
+            } finally {
+                if (!cancelled) setLoading(false);
+            }
+        })();
+        return () => { cancelled = true; };
+    }, [attemptId]);
+
+    const wrongQuestions = useMemo(() => {
+        const qs = attempt?.questions || [];
+        return qs.filter((q) => q?.isCorrect === false);
+    }, [attempt?.questions]);
+
+    const percent = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
+    const grade = percent >= 85 ? 'ممتاز' : percent >= 70 ? 'جيد جدًا' : percent >= 50 ? 'جيد' : 'يحتاج تحسين';
 
     return (
         <div className="min-h-screen bg-slate-50 pt-32 pb-20 font-sans" dir={i18n.dir()}>
@@ -26,7 +60,7 @@ const ExamResult = () => {
                     <div className="mb-12">
                         <h1 className="text-3xl md:text-4xl font-black text-slate-900 mb-6 flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
                             <span>{t('examResult.scorePrefix')}</span>
-                            <span className="text-[#FFD131]">{correctCount}</span>
+                            <span className="text-[#00A651]">{correctCount}</span>
                             <span>{t('examResult.scoreMid')}</span>
                             <span>{totalQuestions}</span>
                             <span>{t('examResult.scoreSuffix')}</span>
@@ -34,6 +68,11 @@ const ExamResult = () => {
                         <p className="text-lg md:text-xl text-slate-500 font-bold leading-relaxed max-w-4xl mx-auto">
                             {t('examResult.intro')}
                         </p>
+                        <div className="mt-6 flex items-center justify-center gap-3">
+                            <span className="rounded-2xl bg-slate-50 px-5 py-2 font-black text-slate-700 border border-slate-100">
+                                التقييم: {grade} — {percent}%
+                            </span>
+                        </div>
                     </div>
 
                     <div className={`mb-16 ${i18n.dir() === 'rtl' ? 'text-right' : 'text-left'}`}>
@@ -51,7 +90,7 @@ const ExamResult = () => {
                         </div>
 
                         <div className="flex items-start gap-3 ps-1 pe-4">
-                            <div className="w-2.5 h-2.5 rounded-full bg-[#FFD131] mt-2.5 shrink-0" />
+                            <div className="w-2.5 h-2.5 rounded-full bg-[#00A651] mt-2.5 shrink-0" />
                             <p className="text-lg md:text-xl text-slate-600 font-bold leading-relaxed">
                                 {t('examResult.noteBody')}
                             </p>
@@ -113,6 +152,63 @@ const ExamResult = () => {
                         </div>
                     </div>
 
+                    {/* Review wrong answers */}
+                    <div className="mt-16 text-start">
+                        <h2 className="text-3xl font-black text-slate-800 mb-6">
+                            الأسئلة التي أخطأت فيها
+                        </h2>
+
+                        {loading ? (
+                            <div className="rounded-3xl bg-slate-50 border border-slate-100 p-6 font-bold text-slate-600">
+                                جاري تحميل المراجعة...
+                            </div>
+                        ) : wrongQuestions.length === 0 ? (
+                            <div className="rounded-3xl bg-green-50 border border-green-100 p-6 font-black text-green-800">
+                                ممتاز! لم تخطئ في أي سؤال.
+                            </div>
+                        ) : (
+                            <div className="space-y-5">
+                                {wrongQuestions.map((q, idx) => {
+                                    const userIdx = q.userAnswerIndex;
+                                    const correctIdx = q.correctIndex;
+                                    const userText =
+                                        userIdx == null
+                                            ? 'لم تُجب'
+                                            : (q.options || [])[userIdx] ?? '—';
+                                    const correctText =
+                                        correctIdx == null
+                                            ? '—'
+                                            : (q.options || [])[correctIdx] ?? '—';
+                                    return (
+                                        <div key={q.id || idx} className="rounded-[2rem] border border-slate-100 bg-white p-6 shadow-sm">
+                                            <div className="flex items-start justify-between gap-4 mb-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-3 h-3 bg-red-500 rounded-full mt-2 shrink-0" />
+                                                    <div className="text-xl font-black text-slate-900">
+                                                        سؤال {idx + 1}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <MathText value={q.stem} dir="rtl" className="font-black text-slate-900 text-lg mb-4" />
+
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div className="rounded-2xl border border-red-100 bg-red-50 p-5">
+                                                    <div className="font-black text-red-700 mb-2">إجابتك</div>
+                                                    <MathText value={userText} dir="rtl" className="font-bold text-slate-800" />
+                                                </div>
+                                                <div className="rounded-2xl border border-green-100 bg-green-50 p-5">
+                                                    <div className="font-black text-green-700 mb-2">الإجابة الصحيحة</div>
+                                                    <MathText value={correctText} dir="rtl" className="font-bold text-slate-800" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </div>
+
                     <div className="mt-12 flex flex-wrap justify-center gap-4">
                         <button
                             type="button"
@@ -124,7 +220,7 @@ const ExamResult = () => {
                         <button
                             type="button"
                             onClick={() => window.location.reload()}
-                            className="bg-[#FFD131] text-slate-900 px-8 py-3 rounded-xl font-bold hover:bg-[#ffc800] transition-colors"
+                            className="bg-[#00A651] text-slate-900 px-8 py-3 rounded-xl font-bold hover:bg-[#ffc800] transition-colors"
                         >
                             {t('examResult.retry')}
                         </button>

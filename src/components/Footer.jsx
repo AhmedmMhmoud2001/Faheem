@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { Facebook, Instagram, Twitter, Linkedin, Phone, Mail, MapPin, Clock } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import logo from '../assets/logo.png';
@@ -29,13 +29,13 @@ const Footer = () => {
 
                     </h3>
                     <ul className="flex flex-col gap-4 text-slate-300">
-                        <li><a href="#" className="hover:text-yellow-400 transition-colors">{t('footer.links.account')}</a></li>
-                        <li><a href="#" className="hover:text-yellow-400 transition-colors">{t('footer.links.returns')}</a></li>
-                        <li><a href="#" className="hover:text-yellow-400 transition-colors">{t('footer.links.orders')}</a></li>
-                        <li><a href="#" className="hover:text-yellow-400 transition-colors">{t('footer.links.tickets')}</a></li>
-                        <li><a href="#" className="hover:text-yellow-400 transition-colors">{t('footer.links.track')}</a></li>
-                        <li><a href="#" className="hover:text-yellow-400 transition-colors">{t('footer.links.supportCenter')}</a></li>
-                        <li><a href="#" className="hover:text-yellow-400 transition-colors">{t('footer.links.payment')}</a></li>
+                        <li><a href="#" className="hover:text-[#00A651] transition-colors">{t('footer.links.account')}</a></li>
+                        <li><a href="#" className="hover:text-[#00A651] transition-colors">{t('footer.links.returns')}</a></li>
+                        <li><a href="#" className="hover:text-[#00A651] transition-colors">{t('footer.links.orders')}</a></li>
+                        <li><a href="#" className="hover:text-[#00A651] transition-colors">{t('footer.links.tickets')}</a></li>
+                        <li><a href="#" className="hover:text-[#00A651] transition-colors">{t('footer.links.track')}</a></li>
+                        <li><a href="#" className="hover:text-[#00A651] transition-colors">{t('footer.links.supportCenter')}</a></li>
+                        <li><a href="#" className="hover:text-[#00A651] transition-colors">{t('footer.links.payment')}</a></li>
                     </ul>
                 </div>
 
@@ -46,13 +46,13 @@ const Footer = () => {
                         
                     </h3>
                     <ul className="flex flex-col gap-4 text-slate-300">
-                        <li><a href="#" className="hover:text-yellow-400 transition-colors">{t('footer.links.aboutUs')}</a></li>
-                        <li><a href="#" className="hover:text-yellow-400 transition-colors">{t('footer.links.delivery')}</a></li>
-                        <li><a href="#" className="hover:text-yellow-400 transition-colors">{t('footer.links.privacy')}</a></li>
-                        <li><a href="#" className="hover:text-yellow-400 transition-colors">{t('footer.links.terms')}</a></li>
-                        <li><a href="#" className="hover:text-yellow-400 transition-colors">{t('footer.links.contact')}</a></li>
-                        <li><a href="#" className="hover:text-yellow-400 transition-colors">{t('footer.links.supportCenter')}</a></li>
-                        <li><a href="#" className="hover:text-yellow-400 transition-colors">{t('footer.links.careers')}</a></li>
+                        <li><a href="#" className="hover:text-[#00A651] transition-colors">{t('footer.links.aboutUs')}</a></li>
+                        <li><a href="#" className="hover:text-[#00A651] transition-colors">{t('footer.links.delivery')}</a></li>
+                        <li><a href="#" className="hover:text-[#00A651] transition-colors">{t('footer.links.privacy')}</a></li>
+                        <li><a href="#" className="hover:text-[#00A651] transition-colors">{t('footer.links.terms')}</a></li>
+                        <li><a href="#" className="hover:text-[#00A651] transition-colors">{t('footer.links.contact')}</a></li>
+                        <li><a href="#" className="hover:text-[#00A651] transition-colors">{t('footer.links.supportCenter')}</a></li>
+                        <li><a href="#" className="hover:text-[#00A651] transition-colors">{t('footer.links.careers')}</a></li>
                     </ul>
                 </div>
 
@@ -64,33 +64,33 @@ const Footer = () => {
                     </h3>
                     <ul className="flex flex-col gap-3 text-slate-300">
                         <li className="flex items-start gap-3">
-                            <MapPin size={20} className="text-yellow-400 shrink-0 mt-1" />
+                            <MapPin size={20} className="text-[#00A651] shrink-0 mt-1" />
                             <span>{t('footer.address')}</span>
                         </li>
                         <li className="flex items-center gap-3">
-                            <Phone size={20} className="text-yellow-400 shrink-0" />
+                            <Phone size={20} className="text-[#00A651] shrink-0" />
                             <span dir="ltr">(+01) 123-456-789</span>
                         </li>
                         <li className="flex items-center gap-3">
-                            <Mail size={20} className="text-yellow-400 shrink-0" />
+                            <Mail size={20} className="text-[#00A651] shrink-0" />
                             <span>contact@ecom-market.com</span>
                         </li>
                         <li className="flex items-start gap-3">
-                            <Clock size={20} className="text-yellow-400 shrink-0 mt-1" />
+                            <Clock size={20} className="text-[#00A651] shrink-0 mt-1" />
                             <span>{t('footer.hours')}</span>
                         </li>
                     </ul>
                     <div className="flex gap-4 mt-8">
-                        <a href="#" className="bg-white/10 p-2 rounded-full hover:bg-yellow-400 hover:text-slate-800 transition-all">
+                        <a href="#" className="bg-white/10 p-2 rounded-full hover:bg-[#00A651] hover:text-slate-800 transition-all">
                             <Facebook size={20} />
                         </a>
-                        <a href="#" className="bg-white/10 p-2 rounded-full hover:bg-yellow-400 hover:text-slate-800 transition-all">
+                        <a href="#" className="bg-white/10 p-2 rounded-full hover:bg-[#00A651] hover:text-slate-800 transition-all">
                             <Instagram size={20} />
                         </a>
-                        <a href="#" className="bg-white/10 p-2 rounded-full hover:bg-yellow-400 hover:text-slate-800 transition-all">
+                        <a href="#" className="bg-white/10 p-2 rounded-full hover:bg-[#00A651] hover:text-slate-800 transition-all">
                             <Twitter size={20} />
                         </a>
-                        <a href="#" className="bg-white/10 p-2 rounded-full hover:bg-yellow-400 hover:text-slate-800 transition-all">
+                        <a href="#" className="bg-white/10 p-2 rounded-full hover:bg-[#00A651] hover:text-slate-800 transition-all">
                             <Linkedin size={20} />
                         </a>
                     </div>

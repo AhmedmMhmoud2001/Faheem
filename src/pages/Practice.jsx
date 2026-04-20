@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+﻿import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams, useLocation, useSearchParams } from 'react-router-dom';
 import Container from '../components/Container';
 import { ChevronRight, ArrowLeft } from 'lucide-react';
@@ -6,6 +6,7 @@ import imgbanner from '../assets/imgbanner.png';
 import { api, getLearnerLang, resolveMediaUrl } from '../lib/api.js';
 import SubscriptionWall from '../components/SubscriptionWall.jsx';
 import { useEntitlement } from '../hooks/useEntitlement.js';
+import MathText from '../components/MathText.jsx';
 
 const PRACTICE_LIMIT_FALLBACK = 5;
 
@@ -124,9 +125,6 @@ const Practice = () => {
 
     const showResult = Boolean(currentQ?.userAnswerIndex != null);
     const selectedAnswer = currentQ?.userAnswerIndex ?? null;
-    const isCorrect = Boolean(currentQ?.isCorrect);
-    const correctAnswerIndex =
-        currentQ?.correctIndex != null ? currentQ.correctIndex : null;
 
     const handleAnswerSelect = async (answerIndex) => {
         if (!attemptId || !currentQ || showResult) return;
@@ -149,9 +147,17 @@ const Practice = () => {
         } else {
             setSubmitting(true);
             try {
-                await api.post(`/exams/attempts/${attemptId}/submit`);
+                const { data } = await api.post(`/exams/attempts/${attemptId}/submit`);
                 await refreshStageStats();
-                navigate('/feedback', { state: { source: 'practice', attemptId } });
+                navigate('/result', {
+                    state: {
+                        attemptId,
+                        totalQuestions: data.score?.total ?? totalQuestions,
+                        correctCount: data.score?.correct ?? 0,
+                        wrongCount: data.score?.wrong ?? 0,
+                        answers: data.perQuestion ?? [],
+                    },
+                });
             } catch (e) {
                 alert(e.response?.data?.message || 'تعذر إنهاء الجلسة');
             } finally {
@@ -200,7 +206,7 @@ const Practice = () => {
                 <button
                     type="button"
                     onClick={() => navigate(`/topics/${subject}/difficulty`)}
-                    className="bg-[#FFD131] text-slate-900 px-6 py-3 rounded-xl font-black"
+                    className="bg-[#00A651] text-slate-900 px-6 py-3 rounded-xl font-black"
                 >
                     اختيار المستوى من جديد
                 </button>
@@ -228,8 +234,12 @@ const Practice = () => {
                 </div>
 
                 <div className="flex items-center justify-end gap-3 mb-8">
-                    <h1 className="text-2xl font-black text-slate-800 text-right leading-snug">{currentQ.stem}</h1>
-                    <div className="w-3 h-3 bg-[#FFD131] rounded-full shrink-0" />
+                    <MathText
+                        value={currentQ.stem}
+                        className="text-2xl font-black text-slate-800 text-right leading-snug"
+                        dir="rtl"
+                    />
+                    <div className="w-3 h-3 bg-[#00A651] rounded-full shrink-0" />
                 </div>
 
                 <div className="w-full bg-slate-200 rounded-[3rem] overflow-hidden mb-12 shadow-sm">
@@ -243,26 +253,13 @@ const Practice = () => {
                 <div className="space-y-4 mb-20">
                     {(currentQ.options || []).map((option, idx) => {
                         const isSelected = selectedAnswer === idx;
-                        const isCorrectAnswer =
-                            showResult && correctAnswerIndex != null && idx === correctAnswerIndex;
 
+                        // Blind practice mode: do NOT reveal correctness while solving.
                         let cardStyle = 'bg-white border-2 border-transparent shadow-sm';
                         let numberStyle = 'bg-slate-50 text-slate-400 border border-slate-200';
-
-                        if (showResult && isSelected) {
-                            if (isCorrectAnswer) {
-                                cardStyle = 'bg-green-50 border-2 border-green-500';
-                                numberStyle = 'bg-green-500 text-white border border-green-500';
-                            } else {
-                                cardStyle = 'bg-red-50 border-2 border-red-400';
-                                numberStyle = 'bg-red-400 text-white border border-red-400';
-                            }
-                        } else if (showResult && isCorrectAnswer) {
-                            cardStyle = 'bg-green-50 border-2 border-green-500';
-                            numberStyle = 'bg-green-500 text-white border border-green-500';
-                        } else if (isSelected) {
-                            cardStyle = 'bg-[#fffbeb] border-2 border-[#FFD131]';
-                            numberStyle = 'bg-[#FFD131] text-slate-900 border border-[#FFD131]';
+                        if (isSelected) {
+                            cardStyle = 'bg-[#fffbeb] border-2 border-[#00A651]';
+                            numberStyle = 'bg-[#00A651] text-slate-900 border border-[#00A651]';
                         }
 
                         return (
@@ -273,15 +270,11 @@ const Practice = () => {
                                 disabled={showResult}
                                 className={`w-full p-6 rounded-[2rem] flex items-center justify-between group transition-all duration-300 ${cardStyle} ${!showResult ? 'hover:border-slate-200' : ''}`}
                             >
-                                <span
-                                    className={`text-lg font-bold text-right flex-1 ${
-                                        isSelected && showResult && !isCorrectAnswer
-                                            ? 'text-red-900'
-                                            : 'text-slate-700'
-                                    }`}
-                                >
-                                    {option}
-                                </span>
+                                <MathText
+                                    value={option}
+                                    dir="rtl"
+                                    className="text-lg font-bold text-right flex-1 text-slate-700"
+                                />
                                 <div className="mr-6">
                                     <div
                                         className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-base transition-all ${numberStyle}`}
@@ -321,41 +314,6 @@ const Practice = () => {
                             <ChevronRight size={20} />
                         </button>
                     </div>
-
-                    {showResult && !isCorrect && correctAnswerIndex != null && (
-                        <div className="animate-in fade-in slide-in-from-top-4 space-y-4">
-                            <div className="flex items-center font-black text-red-600 gap-2 text-sm">
-                                <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[8px] border-b-red-600 rotate-90" />
-                                <span>الإجابة خاطئة</span>
-                            </div>
-
-                            <div className="bg-[#e7f7ed] rounded-2xl p-6 border border-[#d1e7dd]">
-                                <div className="mb-2">
-                                    <span className="font-black text-slate-800 text-base block mb-2">
-                                        الإجابة الصحيحة :
-                                    </span>
-                                    <p className="text-slate-700 font-bold text-sm leading-relaxed">
-                                        {(currentQ.options || [])[correctAnswerIndex]}
-                                    </p>
-                                </div>
-                            </div>
-
-                            <button
-                                type="button"
-                                onClick={() =>
-                                    navigate(`/explanation/${currentQ.id}`, {
-                                        state: { questionId: currentQ.id },
-                                    })
-                                }
-                                className="w-full md:w-auto flex items-center justify-center gap-3 bg-[#FFD131] hover:bg-[#ffc800] text-slate-900 px-12 py-3.5 rounded-xl font-black text-lg transition-all shadow-lg shadow-yellow-100"
-                            >
-                                <div className="w-6 h-6 rounded-full border-2 border-slate-900 flex items-center justify-center">
-                                    <span className="font-serif italic font-bold text-xs">i</span>
-                                </div>
-                                <span>الشرح</span>
-                            </button>
-                        </div>
-                    )}
                 </div>
             </Container>
         </div>

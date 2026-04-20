@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+﻿import React, { useEffect, useMemo, useState } from 'react';
 import { Phone, Mail, User, Instagram, Facebook, Youtube, MessageCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import Container from './Container';
@@ -80,7 +80,7 @@ const ContactSection = () => {
         <section id="contact" className="bg-white " dir={i18n.dir()}>
             <Container>
                 <div className="flex flex-col lg:flex-row-reverse gap-8 lg:gap-16 py-20 md:py-20">
-                    <div className="flex-1 lg:flex-2/5 bg-white rounded-3xl p-6 md:p-8 border-2 border-yellow-400">
+                    <div className="flex-1 lg:flex-2/5 bg-white rounded-3xl p-6 md:p-8 border-2 border-[#00A651]">
                         <h3 className="text-xl md:text-2xl font-black text-slate-900 mb-6">
                             {t('contact.formTitle')}
                         </h3>
@@ -92,7 +92,7 @@ const ContactSection = () => {
                                     placeholder={t('contact.name')}
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    className="w-full bg-white border border-slate-200 rounded-xl py-3.5 px-12 focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 font-bold transition-all outline-none text-sm md:text-base"
+                                    className="w-full bg-white border border-slate-200 rounded-xl py-3.5 px-12 focus:ring-2 focus:ring-[#00A651] focus:border-[#00A651] font-bold transition-all outline-none text-sm md:text-base"
                                 />
                                 <User className="absolute start-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                             </div>
@@ -103,7 +103,7 @@ const ContactSection = () => {
                                     placeholder={t('contact.email')}
                                     value={formData.email}
                                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                    className="w-full bg-white border border-slate-200 rounded-xl py-3.5 px-12 focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 font-bold transition-all outline-none text-sm md:text-base"
+                                    className="w-full bg-white border border-slate-200 rounded-xl py-3.5 px-12 focus:ring-2 focus:ring-[#00A651] focus:border-[#00A651] font-bold transition-all outline-none text-sm md:text-base"
                                 />
                                 <Mail className="absolute start-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                             </div>
@@ -114,7 +114,7 @@ const ContactSection = () => {
                                     rows="4"
                                     value={formData.message}
                                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                                    className="w-full bg-white border border-slate-200 rounded-xl py-3.5 px-6 focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 font-bold transition-all outline-none resize-none text-sm md:text-base"
+                                    className="w-full bg-white border border-slate-200 rounded-xl py-3.5 px-6 focus:ring-2 focus:ring-[#00A651] focus:border-[#00A651] font-bold transition-all outline-none resize-none text-sm md:text-base"
                                 />
                             </div>
                             <button
@@ -144,7 +144,7 @@ const ContactSection = () => {
                         <div className="space-y-4 mb-8">
                             {phoneDisplay ? (
                                 <div className="flex items-center gap-4 justify-start">
-                                    <div className="w-12 h-12 md:w-14 md:h-14 bg-[#FFD131] rounded-full flex items-center justify-center text-slate-900 shadow-lg shadow-yellow-200">
+                                    <div className="w-12 h-12 md:w-14 md:h-14 bg-[#00A651] rounded-full flex items-center justify-center text-slate-900 shadow-lg shadow-yellow-200">
                                         <Phone size={20} strokeWidth={2.5} />
                                     </div>
                                     <div className="text-right">
@@ -157,13 +157,13 @@ const ContactSection = () => {
 
                             {emailDisplay ? (
                                 <div className="flex items-center gap-4 justify-start">
-                                    <div className="w-12 h-12 md:w-14 md:h-14 bg-[#FFD131] rounded-full flex items-center justify-center text-slate-900 shadow-lg shadow-yellow-200">
+                                    <div className="w-12 h-12 md:w-14 md:h-14 bg-[#00A651] rounded-full flex items-center justify-center text-slate-900 shadow-lg shadow-yellow-200">
                                         <Mail size={20} strokeWidth={2.5} />
                                     </div>
                                     <div className="text-right min-w-0">
                                         <a
                                             href={`mailto:${emailDisplay}`}
-                                            className="text-sm md:text-base lg:text-lg font-black text-slate-900 break-all hover:text-[#FFD131]"
+                                            className="text-sm md:text-base lg:text-lg font-black text-slate-900 break-all hover:text-[#00A651]"
                                         >
                                             {emailDisplay}
                                         </a>
@@ -184,7 +184,7 @@ const ContactSection = () => {
                                             href={url}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="w-10 h-10 md:w-11 md:h-11 bg-[#FFD131] rounded-full flex items-center justify-center text-slate-900 hover:bg-slate-900 hover:text-[#FFD131] transition-all shadow-md shadow-yellow-200"
+                                            className="w-10 h-10 md:w-11 md:h-11 bg-[#00A651] rounded-full flex items-center justify-center text-slate-900 hover:bg-slate-900 hover:text-[#00A651] transition-all shadow-md shadow-yellow-200"
                                             aria-label={label}
                                         >
                                             <Icon size={18} strokeWidth={2.5} />

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+﻿import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Container from './Container';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -104,8 +104,8 @@ const Testimonials = () => {
                         >
                             {reviews.map((review) => (
                                 <SwiperSlide key={review.id}>
-                                    <div className="bg-white p-6 md:p-8 rounded-2xl border-slate-50 relative group hover:border-yellow-400 transition-all min-h-[280px] flex flex-col justify-between">
-                                        <div className="absolute -top-3 left-6 md:left-8 bg-[#FFD131] w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center text-slate-900 shadow-lg shadow-yellow-200 z-50">
+                                    <div className="bg-white p-6 md:p-8 rounded-2xl border-slate-50 relative group hover:border-[#00A651] transition-all min-h-[280px] flex flex-col justify-between">
+                                        <div className="absolute -top-3 left-6 md:left-8 bg-[#00A651] w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center text-slate-900 shadow-lg shadow-yellow-200 z-50">
                                             <span className="text-xl md:text-2xl font-black mt-1">"</span>
                                         </div>
 

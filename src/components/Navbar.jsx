@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { Globe, LogIn, LogOut, Menu, X } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -40,7 +40,7 @@ const Navbar = () => {
                         <div className="flex items-center gap-12">
                             {/* Logo */}
                             <Link to={isLoggedIn ? "/dashboard" : "/"} className="flex items-center gap-2 group">
-                                <img src={logo} alt="logo" className="h-14 w-auto object-contain" />
+                                <img src={logo} alt="logo" className="h-20 w-auto object-contain" />
                             </Link>
 
                             {/* Desktop Nav Links */}
@@ -49,7 +49,7 @@ const Navbar = () => {
                                     <Link
                                         key={link.nameKey}
                                         to={link.path}
-                                        className="text-slate-700 hover:text-[#FFD131] transition-colors font-bold text-lg"
+                                        className="text-slate-700 hover:text-[#00A651] transition-colors font-bold text-lg"
                                     >
                                         {t(link.nameKey)}
                                     </Link>
@@ -66,12 +66,12 @@ const Navbar = () => {
                                     <div className="flex items-center gap-4">
                                         <button
                                             onClick={handleLogout}
-                                            className="flex items-center gap-3 bg-[#FFD131] hover:bg-slate-900 hover:text-white px-6 py-2.5 rounded-xl font-black text-lg transition-all transform hover:-translate-y-0.5 active:scale-95 shadow-lg shadow-yellow-200/50"
+                                            className="flex items-center gap-3 bg-[#00A651] hover:bg-slate-900 hover:text-white px-6 py-2.5 rounded-xl font-black text-lg transition-all transform hover:-translate-y-0.5 active:scale-95 shadow-lg shadow-green-200/50"
                                         >
                                             <LogOut size={20} />
                                             <span>{t('nav.logout')}</span>
                                         </button>
-                                        <Link to="/profile" className="w-12 h-12 rounded-full border-2 border-[#FFD131] p-0.5 overflow-hidden transition-transform hover:scale-105 active:scale-95 block">
+                                        <Link to="/profile" className="w-12 h-12 rounded-full border-2 border-[#00A651] p-0.5 overflow-hidden transition-transform hover:scale-105 active:scale-95 block">
                                             <img
                                                 src={user?.avatar || "https://i.pravatar.cc/150?u=faheem"}
                                                 alt="profile"
@@ -82,7 +82,7 @@ const Navbar = () => {
                                 ) : (
                                     <button
                                         onClick={() => navigate('/login')}
-                                        className="flex items-center gap-3 bg-[#FFD131] hover:bg-slate-900 hover:text-white px-6 py-2.5 rounded-xl font-black text-lg transition-all transform hover:-translate-y-0.5 active:scale-95 shadow-lg shadow-yellow-200/50"
+                                        className="flex items-center gap-3 bg-[#00A651] hover:bg-slate-900 hover:text-white px-6 py-2.5 rounded-xl font-black text-lg transition-all transform hover:-translate-y-0.5 active:scale-95 shadow-lg shadow-green-200/50"
                                     >
                                         <LogIn size={20} />
                                         <span>{t('nav.login')}</span>
@@ -92,7 +92,7 @@ const Navbar = () => {
                                     onClick={toggleLang}
                                     className="flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-colors border-s border-slate-200 ps-6 group"
                                 >
-                                    <Globe size={18} className="group-hover:text-[#FFD131]" />
+                                    <Globe size={18} className="group-hover:text-[#00A651]" />
                                     <span className="font-bold uppercase">{lang === 'ar' ? t('nav.switchToEn') : t('nav.switchToAr')}</span>
                                 </button>
                             </div>
@@ -125,7 +125,7 @@ const Navbar = () => {
                     <div className="p-8 border-b border-slate-50 flex items-center justify-between font-sans">
                         <div className="flex items-center gap-3">
                             {isLoggedIn ? (
-                                <Link to="/profile" className="w-12 h-12 rounded-full border-2 border-[#FFD131] p-0.5 overflow-hidden transition-transform hover:scale-105 active:scale-95 block">
+                                <Link to="/profile" className="w-12 h-12 rounded-full border-2 border-[#00A651] p-0.5 overflow-hidden transition-transform hover:scale-105 active:scale-95 block">
                                     <img
                                         src={user?.avatar || "https://i.pravatar.cc/150?u=faheem"}
                                         alt="profile"
@@ -152,7 +152,7 @@ const Navbar = () => {
                             <Link
                                 key={link.nameKey}
                                 to={link.path}
-                                className="block text-2xl font-black text-slate-700 hover:text-[#FFD131] transition-colors"
+                                className="block text-2xl font-black text-slate-700 hover:text-[#00A651] transition-colors"
                                 onClick={() => setIsMenuOpen(false)}
                             >
                                 {t(link.nameKey)}
@@ -164,7 +164,7 @@ const Navbar = () => {
                         {isLoggedIn ? (
                             <button
                                 onClick={() => { handleLogout(); setIsMenuOpen(false); }}
-                                className="w-full flex items-center justify-center gap-4 bg-[#FFD131] hover:bg-slate-900 hover:text-white py-5 rounded-3xl font-black text-xl transition-all shadow-xl shadow-yellow-100"
+                                className="w-full flex items-center justify-center gap-4 bg-[#00A651] hover:bg-slate-900 hover:text-white py-5 rounded-3xl font-black text-xl transition-all shadow-xl shadow-green-100"
                             >
                                 <span>{t('nav.logout')}</span>
                                 <LogOut size={24} />
@@ -172,7 +172,7 @@ const Navbar = () => {
                         ) : (
                             <button
                                 onClick={() => { navigate('/login'); setIsMenuOpen(false); }}
-                                className="w-full flex items-center justify-center gap-4 bg-[#FFD131] hover:bg-slate-900 hover:text-white py-5 rounded-3xl font-black text-xl transition-all shadow-xl shadow-yellow-100"
+                                className="w-full flex items-center justify-center gap-4 bg-[#00A651] hover:bg-slate-900 hover:text-white py-5 rounded-3xl font-black text-xl transition-all shadow-xl shadow-green-100"
                             >
                                 <span>{t('nav.login')}</span>
                                 <LogIn size={24} />

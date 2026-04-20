@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import Container from './Container';
 import { Folder, Star, FileText, User } from 'lucide-react';
 
@@ -16,7 +16,7 @@ const FeatureOverview = () => {
             value: '4.8',
             label: '',
             iconBg: 'bg-yellow-50',
-            iconColor: 'text-yellow-500',
+            iconColor: 'text-[#00A651]',
             showStars: true
         },
         {
@@ -42,12 +42,12 @@ const FeatureOverview = () => {
                     {features.map((feature, idx) => (
                         <div
                             key={idx}
-                            className="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100 hover:border-yellow-400 transition-all cursor-default text-center"
+                            className="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100 hover:border-[#00A651] transition-all cursor-default text-center"
                         >
                             <div className={`${feature.iconBg} w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4`}>
                                 {feature.showStars ? (
                                     <div className="flex items-center gap-1">
-                                        <Star size={24} fill="#FFD131" className="text-yellow-500" />
+                                        <Star size={24} fill="#00A651" className="text-[#00A651]" />
                                         <span className="text-xl font-black text-slate-900">{feature.value}</span>
                                     </div>
                                 ) : (

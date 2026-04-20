@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Container from '../components/Container';
@@ -52,7 +52,7 @@ const ForgotPassword = () => {
                                     placeholder={t('forgotPassword.placeholder')}
                                     value={emailOrPhone}
                                     onChange={(e) => setEmailOrPhone(e.target.value)}
-                                    className="w-full rounded-2xl border-2 border-slate-200 bg-white py-4 ps-6 pe-6 font-bold text-slate-900 outline-none transition-all focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400 text-start"
+                                    className="w-full rounded-2xl border-2 border-slate-200 bg-white py-4 ps-6 pe-6 font-bold text-slate-900 outline-none transition-all focus:border-[#00A651] focus:ring-2 focus:ring-[#00A651] text-start"
                                 />
                             </div>
 
@@ -69,7 +69,7 @@ const ForgotPassword = () => {
 
                             <button
                                 type="submit"
-                                className="w-full rounded-2xl bg-[#FFD131] py-4 text-lg font-black text-slate-900 shadow-lg shadow-yellow-200/50 transition-all hover:bg-slate-900 hover:text-white"
+                                className="w-full rounded-2xl bg-[#00A651] py-4 text-lg font-black text-slate-900 shadow-lg shadow-green-200/50 transition-all hover:bg-slate-900 hover:text-white"
                             >
                                 {t('forgotPassword.submit')}
                             </button>

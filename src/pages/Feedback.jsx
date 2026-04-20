@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Container from '../components/Container';
 import { User, Mail, Star, X } from 'lucide-react';
@@ -80,7 +80,7 @@ const Feedback = () => {
                                         size={48}
                                         weight="fill"
                                         className={`transition-colors duration-200 ${star <= (hoveredRating || rating)
-                                            ? 'fill-[#FFD131] text-[#FFD131]'
+                                            ? 'fill-[#00A651] text-[#00A651]'
                                             : 'fill-slate-200 text-slate-200'
                                             }`}
                                     />
@@ -100,7 +100,7 @@ const Feedback = () => {
                                     placeholder="الاسم"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
-                                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-5 pr-16 pl-6 text-lg font-bold text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#FFD131] focus:ring-1 focus:ring-[#FFD131] transition-all"
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-5 pr-16 pl-6 text-lg font-bold text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#00A651] focus:ring-1 focus:ring-[#00A651] transition-all"
                                 />
                             </div>
 
@@ -114,7 +114,7 @@ const Feedback = () => {
                                     placeholder="عنوان البريد الإلكتروني"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-5 pr-16 pl-6 text-lg font-bold text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#FFD131] focus:ring-1 focus:ring-[#FFD131] transition-all"
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-5 pr-16 pl-6 text-lg font-bold text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#00A651] focus:ring-1 focus:ring-[#00A651] transition-all"
                                 />
                             </div>
 
@@ -124,7 +124,7 @@ const Feedback = () => {
                                 placeholder="أضف تعليقاتك"
                                 value={comment}
                                 onChange={(e) => setComment(e.target.value)}
-                                className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-6 text-lg font-bold text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#FFD131] focus:ring-1 focus:ring-[#FFD131] transition-all resize-none"
+                                className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-6 text-lg font-bold text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#00A651] focus:ring-1 focus:ring-[#00A651] transition-all resize-none"
                             ></textarea>
                         </div>
 
@@ -132,7 +132,7 @@ const Feedback = () => {
                         <div className="flex flex-col md:flex-row gap-4">
                             <button
                                 onClick={handleSend}
-                                className="flex-1 bg-[#FFD131] hover:bg-[#ffc800] text-slate-900 py-4 rounded-xl font-black text-xl transition-all shadow-lg shadow-yellow-100"
+                                className="flex-1 bg-[#00A651] hover:bg-[#ffc800] text-slate-900 py-4 rounded-xl font-black text-xl transition-all shadow-lg shadow-green-100"
                             >
                                 إرسال
                             </button>

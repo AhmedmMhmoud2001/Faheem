@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import Container from '../components/Container';
 import { ChevronLeft, FileDown } from 'lucide-react';
 import { api } from '../lib/api.js';
+import MathText from '../components/MathText.jsx';
 
 const apiOrigin =
     (import.meta.env.VITE_API_URL || 'http://localhost:4000/api/v1').replace(/\/api\/v1\/?$/, '') ||
@@ -156,9 +157,11 @@ function ExplanationLoaded({ questionId }) {
                 {data.videoUrl?.trim() ? <VideoSection rawUrl={data.videoUrl.trim()} /> : null}
 
                 <div className="mb-8 rounded-[2rem] border border-slate-100 bg-white p-8 shadow-sm lg:p-12">
-                    <p className="text-justify text-lg font-bold leading-loose text-slate-700 whitespace-pre-wrap lg:text-xl">
-                        {description}
-                    </p>
+                    <MathText
+                        value={description}
+                        dir="rtl"
+                        className="text-justify text-lg font-bold leading-loose text-slate-700 whitespace-pre-wrap lg:text-xl"
+                    />
                 </div>
 
                 {pdfHref ? (

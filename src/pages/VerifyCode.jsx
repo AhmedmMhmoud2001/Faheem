@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Container from '../components/Container';
 import logo from '../assets/logo.png';
@@ -54,7 +54,7 @@ const VerifyCode = () => {
                                     placeholder="رقم المصادقة"
                                     value={code}
                                     onChange={(e) => setCode(e.target.value)}
-                                    className="w-full bg-white border-2 border-slate-200 rounded-2xl py-4 px-6 focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 font-bold transition-all outline-none text-center text-2xl tracking-widest"
+                                    className="w-full bg-white border-2 border-slate-200 rounded-2xl py-4 px-6 focus:ring-2 focus:ring-[#00A651] focus:border-[#00A651] font-bold transition-all outline-none text-center text-2xl tracking-widest"
                                     maxLength="6"
                                 />
                             </div>
@@ -66,14 +66,14 @@ const VerifyCode = () => {
                                     placeholder="كلمة المرور الجديدة"
                                     value={newPassword}
                                     onChange={(e) => setNewPassword(e.target.value)}
-                                    className="w-full bg-white border-2 border-slate-200 rounded-2xl py-4 px-6 focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 font-bold transition-all outline-none"
+                                    className="w-full bg-white border-2 border-slate-200 rounded-2xl py-4 px-6 focus:ring-2 focus:ring-[#00A651] focus:border-[#00A651] font-bold transition-all outline-none"
                                 />
                             </div>
 
                             {/* Submit Button */}
                             <button
                                 type="submit"
-                                className="w-full bg-[#FFD131] hover:bg-slate-900 hover:text-white text-slate-900 py-4 rounded-2xl font-black text-lg transition-all shadow-lg shadow-yellow-200/50"
+                                className="w-full bg-[#00A651] hover:bg-slate-900 hover:text-white text-slate-900 py-4 rounded-2xl font-black text-lg transition-all shadow-lg shadow-green-200/50"
                             >
                                 تم
                             </button>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { Apple, Facebook } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -45,7 +45,7 @@ const Register = () => {
                 {/* Logo at Top */}
                 <div className="flex flex-col items-center mb-12">
                     <img src={logo} alt="Al Faheem Logo" className="w-40 h-auto" />
-                    <div className="w-12 h-1 bg-yellow-400 mt-6 rounded-full"></div>
+                    <div className="w-12 h-1 bg-[#00A651] mt-6 rounded-full"></div>
                 </div>
 
                 <div className="w-full max-w-lg">
@@ -59,7 +59,7 @@ const Register = () => {
                                 required
                                 value={form.fullName}
                                 onChange={(e) => setForm({ ...form, fullName: e.target.value })}
-                                className="w-full bg-slate-50 border-none rounded-2xl py-5 px-6 focus:ring-2 focus:ring-yellow-400 font-bold transition-all outline-none"
+                                className="w-full bg-slate-50 border-none rounded-2xl py-5 px-6 focus:ring-2 focus:ring-[#00A651] font-bold transition-all outline-none"
                                 placeholder="الاسم بالكامل"
                             />
                         </div>
@@ -71,7 +71,7 @@ const Register = () => {
                                 required
                                 value={form.email}
                                 onChange={(e) => setForm({ ...form, email: e.target.value })}
-                                className="w-full bg-slate-50 border-none rounded-2xl py-5 px-6 focus:ring-2 focus:ring-yellow-400 font-bold transition-all outline-none"
+                                className="w-full bg-slate-50 border-none rounded-2xl py-5 px-6 focus:ring-2 focus:ring-[#00A651] font-bold transition-all outline-none"
                                 placeholder="example@email.com"
                             />
                         </div>
@@ -85,7 +85,7 @@ const Register = () => {
                                     minLength={8}
                                     value={form.password}
                                     onChange={(e) => setForm({ ...form, password: e.target.value })}
-                                    className="w-full bg-slate-50 border-none rounded-2xl py-5 px-6 focus:ring-2 focus:ring-yellow-400 font-bold transition-all outline-none"
+                                    className="w-full bg-slate-50 border-none rounded-2xl py-5 px-6 focus:ring-2 focus:ring-[#00A651] font-bold transition-all outline-none"
                                     placeholder="••••••••"
                                 />
                             </div>
@@ -96,7 +96,7 @@ const Register = () => {
                                     required
                                     value={form.confirm}
                                     onChange={(e) => setForm({ ...form, confirm: e.target.value })}
-                                    className="w-full bg-slate-50 border-none rounded-2xl py-5 px-6 focus:ring-2 focus:ring-yellow-400 font-bold transition-all outline-none"
+                                    className="w-full bg-slate-50 border-none rounded-2xl py-5 px-6 focus:ring-2 focus:ring-[#00A651] font-bold transition-all outline-none"
                                     placeholder="••••••••"
                                 />
                             </div>
@@ -105,7 +105,7 @@ const Register = () => {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full bg-[#FFD740] hover:bg-slate-900 hover:text-white py-5 rounded-3xl font-black text-xl transition-all transform hover:-translate-y-1 active:scale-95 shadow-xl shadow-yellow-200/50 mt-4 disabled:opacity-50"
+                            className="w-full bg-[#00A651] hover:bg-slate-900 hover:text-white py-5 rounded-3xl font-black text-xl transition-all transform hover:-translate-y-1 active:scale-95 shadow-xl shadow-green-200/50 mt-4 disabled:opacity-50"
                         >
                             {loading ? 'جاري الإنشاء...' : 'إنشاء حساب'}
                         </button>
@@ -118,7 +118,7 @@ const Register = () => {
                             <span className="text-slate-400 font-bold">لديك حساب بالفعل؟ </span>
                             <Link
                                 to="/login"
-                                className="text-slate-900 font-black hover:text-yellow-500 transition-colors underline underline-offset-4"
+                                className="text-slate-900 font-black hover:text-[#00A651] transition-colors underline underline-offset-4"
                             >
                                 سجل الدخول
                             </Link>

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+﻿import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Container from '../components/Container';
@@ -118,7 +118,7 @@ const TrialTest = () => {
                     {features.map((feature, idx) => (
                         <div
                             key={idx}
-                            className="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100 hover:border-yellow-400 transition-all"
+                            className="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100 hover:border-[#00A651] transition-all"
                         >
                             <div className="flex items-start gap-4">
                                 <div

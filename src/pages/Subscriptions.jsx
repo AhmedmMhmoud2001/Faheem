@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+﻿import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Check, LayoutDashboard } from 'lucide-react';
@@ -128,7 +128,7 @@ const Subscriptions = () => {
                     {!authLoading && isLoggedIn && (
                         <Link
                             to="/dashboard"
-                            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl border-2 border-slate-200 bg-white px-6 py-3 font-black text-slate-800 shadow-sm transition-all hover:border-[#FFD131] hover:bg-[#FFD131]/10"
+                            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl border-2 border-slate-200 bg-white px-6 py-3 font-black text-slate-800 shadow-sm transition-all hover:border-[#00A651] hover:bg-[#00A651]/10"
                         >
                             <LayoutDashboard className="h-5 w-5" strokeWidth={2.5} />
                             {t('subscriptionsPage.backToDashboard')}
@@ -170,7 +170,7 @@ const Subscriptions = () => {
                         <div className="mt-4 flex flex-wrap gap-3">
                             <Link
                                 to="/dashboard"
-                                className="inline-flex items-center gap-2 rounded-xl bg-[#FFD131] px-5 py-2.5 font-black text-slate-900 transition hover:bg-slate-900 hover:text-white"
+                                className="inline-flex items-center gap-2 rounded-xl bg-[#00A651] px-5 py-2.5 font-black text-slate-900 transition hover:bg-slate-900 hover:text-white"
                             >
                                 {t('subscriptionsPage.openDashboard')}
                             </Link>
@@ -189,9 +189,9 @@ const Subscriptions = () => {
                         return (
                         <div
                             key={plan.slug || idx}
-                            className="m-6 rounded-[2rem] border border-slate-100 bg-white p-6 shadow-sm transition-all hover:border-yellow-400"
+                            className="m-6 rounded-[2rem] border border-slate-100 bg-white p-6 shadow-sm transition-all hover:border-[#00A651]"
                         >
-                            <div className="mb-6 rounded-2xl bg-[#FFD131] px-6 py-3 text-center">
+                            <div className="mb-6 rounded-2xl bg-[#00A651] px-6 py-3 text-center">
                                 <span className="text-3xl font-black text-slate-900">
                                     {plan.currency}
                                     {plan.price}
@@ -236,7 +236,7 @@ const Subscriptions = () => {
                                     <button
                                         type="button"
                                         onClick={() => setOpenFaqIndex(openFaqIndex === idx ? -1 : idx)}
-                                        className={`w-full p-5 text-lg font-black text-slate-900 transition-colors hover:text-yellow-500 ${isRtl ? 'text-right' : 'text-left'}`}
+                                        className={`w-full p-5 text-lg font-black text-slate-900 transition-colors hover:text-[#00A651] ${isRtl ? 'text-right' : 'text-left'}`}
                                     >
                                         {faq.question}
                                     </button>

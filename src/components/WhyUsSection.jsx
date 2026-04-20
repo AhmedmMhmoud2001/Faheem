@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+﻿import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Container from './Container';
 import { api } from '../lib/api.js';
@@ -48,7 +48,7 @@ export default function WhyUsSection() {
           {items.map((text, idx) => (
             <div
               key={idx}
-              className="cursor-default rounded-3xl border border-slate-50 bg-white p-4 text-center shadow-sm transition-all hover:border-yellow-400 md:p-6"
+              className="cursor-default rounded-3xl border border-slate-50 bg-white p-4 text-center shadow-sm transition-all hover:border-[#00A651] md:p-6"
             >
               <span className="text-xl font-black text-slate-800 md:text-2xl">{text}</span>
             </div>

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+﻿import React, { useEffect, useMemo, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import Container from './Container';
@@ -97,7 +97,7 @@ const Hero = ({ onStartClick }) => {
                                 <button
                                     type="button"
                                     onClick={onStartClick}
-                                    className={`w-full md:w-auto flex items-center gap-3 bg-[#FFD131] hover:bg-slate-900 hover:text-white px-8 py-2.5 md:px-10 md:py-3.5 rounded-2xl font-black text-sm md:text-base transition-all transform hover:-translate-y-1 shadow-lg shadow-yellow-200/50 ${
+                                    className={`w-full md:w-auto flex items-center gap-3 bg-[#00A651] hover:bg-slate-900 hover:text-white px-8 py-2.5 md:px-10 md:py-3.5 rounded-2xl font-black text-sm md:text-base transition-all transform hover:-translate-y-1 shadow-lg shadow-green-200/50 ${
                                         isRtl ? 'justify-start' : 'justify-end'
                                     }`}
                                 >

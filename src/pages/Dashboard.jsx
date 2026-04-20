@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+﻿import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Container from '../components/Container';
@@ -129,7 +129,7 @@ const Dashboard = () => {
                         </div>
                         <button
                             onClick={() => navigate('/subscriptions')}
-                            className="bg-[#FFD131] hover:bg-slate-900 hover:text-white px-12 py-3 rounded-2xl font-black text-xl transition-all shadow-xl shadow-yellow-200/40 transform hover:-translate-y-1 active:scale-95"
+                            className="bg-[#00A651] hover:bg-slate-900 hover:text-white px-12 py-3 rounded-2xl font-black text-xl transition-all shadow-xl shadow-yellow-200/40 transform hover:-translate-y-1 active:scale-95"
                         >
                             {t('dashboard.subscribe')}
                         </button>
@@ -158,7 +158,7 @@ const Dashboard = () => {
                         tabIndex={0}
                         onClick={() => navigate('/topics')}
                         onKeyDown={(e) => e.key === 'Enter' && navigate('/topics')}
-                        className="flex cursor-pointer items-center justify-between rounded-[1.2rem] border border-slate-200 bg-white p-3 shadow-[0_15px_50px_rgba(0,0,0,0.04)] transition-all group hover:border-[#FFD131]"
+                        className="flex cursor-pointer items-center justify-between rounded-[1.2rem] border border-slate-200 bg-white p-3 shadow-[0_15px_50px_rgba(0,0,0,0.04)] transition-all group hover:border-[#00A651]"
                     >
                         <div className="flex items-center gap-3">
                             <div className="relative">
@@ -176,7 +176,7 @@ const Dashboard = () => {
                         tabIndex={0}
                         onClick={() => navigate('/trial-test')}
                         onKeyDown={(e) => e.key === 'Enter' && navigate('/trial-test')}
-                        className="flex cursor-pointer items-center justify-between rounded-[1.2rem] border border-slate-200 bg-white p-3 shadow-[0_15px_50px_rgba(0,0,0,0.04)] transition-all group hover:border-[#FFD131]"
+                        className="flex cursor-pointer items-center justify-between rounded-[1.2rem] border border-slate-200 bg-white p-3 shadow-[0_15px_50px_rgba(0,0,0,0.04)] transition-all group hover:border-[#00A651]"
                     >
                         <div className="flex items-center gap-3">
                             <div className="relative">
@@ -188,6 +188,7 @@ const Dashboard = () => {
                             </div>
                         </div>
                     </div>
+
                 </div>
 
                 <div className="space-y-4">

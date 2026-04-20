@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+﻿import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Container from './Container';
 import { api, resolveMediaUrl } from '../lib/api.js';
@@ -57,7 +57,7 @@ const AboutSection = () => {
               <div className="w-[85%] rounded-[2.5rem] overflow-hidden shadow-2xl z-10">
                 <img src={imgSrc} className="w-full h-full object-cover" alt={t('about.imageAlt')} />
               </div>
-              <div className="absolute -top-4 -end-4 z-30 bg-[#FFD131] text-slate-900 px-6 py-2 rounded-xl font-black text-lg md:text-xl shadow-xl rotate-2">
+              <div className="absolute -top-4 -end-4 z-30 bg-[#00A651] text-slate-900 px-6 py-2 rounded-xl font-black text-lg md:text-xl shadow-xl rotate-2">
                 {badge}
               </div>
             </div>

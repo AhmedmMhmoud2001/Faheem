@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { api } from '../lib/api.js';
 import { useAuth } from '../context/AuthContext';
@@ -41,7 +41,7 @@ const Checkout = () => {
                                 <input
                                     type="text"
                                     placeholder="١٢٣٤ ١٢٣٤ ١٢٣٤ ١٢٣٤"
-                                    className="w-full bg-white border-2 border-slate-100/80 rounded-2xl py-4 px-6 text-right text-2xl font-medium tracking-widest placeholder:text-slate-300 focus:border-[#FFD131] focus:ring-4 focus:ring-yellow-50/50 transition-all outline-none"
+                                    className="w-full bg-white border-2 border-slate-100/80 rounded-2xl py-4 px-6 text-right text-2xl font-medium tracking-widest placeholder:text-slate-300 focus:border-[#00A651] focus:ring-4 focus:ring-yellow-50/50 transition-all outline-none"
                                 />
                                 <div className="absolute left-8 top-1/2 -translate-y-1/2 flex items-center gap-3">
                                     <div className="flex items-center gap-1.5 p-1.5 bg-slate-50 rounded-lg border border-slate-100">
@@ -62,7 +62,7 @@ const Checkout = () => {
                                 <input
                                     type="text"
                                     placeholder="CVC رمز"
-                                    className="w-full bg-white border-2 border-slate-100/80 rounded-2xl py-4 px-6 text-right text-2xl font-medium placeholder:text-slate-300 focus:border-[#FFD131] focus:ring-4 focus:ring-yellow-50/50 transition-all outline-none"
+                                    className="w-full bg-white border-2 border-slate-100/80 rounded-2xl py-4 px-6 text-right text-2xl font-medium placeholder:text-slate-300 focus:border-[#00A651] focus:ring-4 focus:ring-yellow-50/50 transition-all outline-none"
                                 />
                             </div>
                             <div className="space-y-4">
@@ -72,7 +72,7 @@ const Checkout = () => {
                                 <input
                                     type="text"
                                     placeholder="تنس / رهش"
-                                    className="w-full bg-white border-2 border-slate-100/80 rounded-2xl py-4 px-6 text-right text-2xl font-medium placeholder:text-slate-300 focus:border-[#FFD131] focus:ring-4 focus:ring-yellow-50/50 transition-all outline-none"
+                                    className="w-full bg-white border-2 border-slate-100/80 rounded-2xl py-4 px-6 text-right text-2xl font-medium placeholder:text-slate-300 focus:border-[#00A651] focus:ring-4 focus:ring-yellow-50/50 transition-all outline-none"
                                 />
                             </div>
                         </div>
@@ -86,7 +86,7 @@ const Checkout = () => {
                                 <input
                                     type="text"
                                     placeholder="٩٠٢١٠"
-                                    className="w-full bg-white border-2 border-slate-100/80 rounded-2xl py-4 px-6 text-right text-2xl font-medium placeholder:text-slate-300 focus:border-[#FFD131] focus:ring-4 focus:ring-yellow-50/50 transition-all outline-none"
+                                    className="w-full bg-white border-2 border-slate-100/80 rounded-2xl py-4 px-6 text-right text-2xl font-medium placeholder:text-slate-300 focus:border-[#00A651] focus:ring-4 focus:ring-yellow-50/50 transition-all outline-none"
                                 />
                             </div>
                             <div className="space-y-4">
@@ -94,7 +94,7 @@ const Checkout = () => {
                                     الدولة
                                 </label>
                                 <div className="relative">
-                                    <select className="w-full bg-white border-2 border-slate-100/80 rounded-2xl py-4 px-6 text-right text-2xl font-black text-slate-700 focus:border-[#FFD131] focus:ring-4 focus:ring-yellow-50/50 transition-all outline-none appearance-none cursor-pointer">
+                                    <select className="w-full bg-white border-2 border-slate-100/80 rounded-2xl py-4 px-6 text-right text-2xl font-black text-slate-700 focus:border-[#00A651] focus:ring-4 focus:ring-yellow-50/50 transition-all outline-none appearance-none cursor-pointer">
                                         <option>المملكة العربية السعودية</option>
                                         <option>الإمارات العربية المتحدة</option>
                                         <option>الكويت</option>
@@ -114,7 +114,7 @@ const Checkout = () => {
 
                         {/* Pay Button */}
                         <div className="pt-6 flex justify-end">
-                            <button onClick={handlePayNow} className="w-full md:w-auto min-w-[280px] bg-[#FFD131] hover:bg-slate-900 hover:text-white text-slate-900 py-4 px-6 rounded-[1.5rem] font-black text-3xl transition-all duration-300 transform hover:-translate-y-1 active:scale-95 shadow-xl shadow-yellow-200/50 hover:shadow-slate-200">
+                            <button onClick={handlePayNow} className="w-full md:w-auto min-w-[280px] bg-[#00A651] hover:bg-slate-900 hover:text-white text-slate-900 py-4 px-6 rounded-[1.5rem] font-black text-3xl transition-all duration-300 transform hover:-translate-y-1 active:scale-95 shadow-xl shadow-green-200/50 hover:shadow-slate-200">
                                 ادفع الآن
                             </button>
                         </div>

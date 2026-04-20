@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Lock } from 'lucide-react';
@@ -18,8 +18,8 @@ const SubscriptionWall = ({ trialDaysLeft }) => {
     return (
         <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 py-16 text-center">
             {/* Lock icon */}
-            <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-yellow-50 shadow-lg shadow-yellow-100">
-                <Lock className="h-9 w-9 text-yellow-500" strokeWidth={2.5} />
+            <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-yellow-50 shadow-lg shadow-green-100">
+                <Lock className="h-9 w-9 text-[#00A651]" strokeWidth={2.5} />
             </div>
 
             {/* Badge – only shown when trial just ran out (daysLeft === 0) */}
@@ -38,7 +38,7 @@ const SubscriptionWall = ({ trialDaysLeft }) => {
 
             <button
                 onClick={() => navigate('/subscriptions')}
-                className="rounded-2xl bg-[#FFD131] px-10 py-3.5 text-xl font-black text-slate-900 shadow-xl shadow-yellow-200/50 transition-all hover:-translate-y-1 hover:bg-slate-900 hover:text-white active:scale-95"
+                className="rounded-2xl bg-[#00A651] px-10 py-3.5 text-xl font-black text-slate-900 shadow-xl shadow-green-200/50 transition-all hover:-translate-y-1 hover:bg-slate-900 hover:text-white active:scale-95"
             >
                 {t('subscriptionWall.cta')}
             </button>

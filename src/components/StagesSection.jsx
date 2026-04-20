@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { UserPlus, Search, ShoppingBag, CheckCircle } from 'lucide-react';
 import Container from './Container';
 
@@ -38,7 +38,7 @@ const StagesSection = () => {
                     <p className="text-slate-500 text-xl font-bold max-w-2xl mx-auto">
                         تعرف على الخطوات البسيطة للبدء في استخدام منصة الفهيم وتحقيق صفقات تجارية ناجحة.
                     </p>
-                    <div className="w-24 h-1.5 bg-yellow-400 mx-auto mt-8 rounded-full"></div>
+                    <div className="w-24 h-1.5 bg-[#00A651] mx-auto mt-8 rounded-full"></div>
                 </div>
 
                 <div className="relative">

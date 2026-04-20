@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+﻿import React, { useMemo } from 'react';
 import {
   ResponsiveContainer,
   LineChart,
@@ -77,9 +77,9 @@ export default function ProfileProgressChart({ t }) {
             type="monotone"
             dataKey="series1"
             name={t('profile.progressChart.dataset1')}
-            stroke="#FFD131"
+            stroke="#00A651"
             strokeWidth={2}
-            dot={{ r: 5, fill: '#FFD131', strokeWidth: 0 }}
+            dot={{ r: 5, fill: '#00A651', strokeWidth: 0 }}
             activeDot={{ r: 6 }}
           />
           <Line

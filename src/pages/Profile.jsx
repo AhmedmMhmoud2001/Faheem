@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+﻿import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import {
   User,
   Mail,
@@ -81,7 +81,7 @@ function MistakeAccordionItem({ mistake, defaultOpen }) {
           <button
             type="button"
             onClick={() => navigate(`/explanation/${q.id}`, { state: { questionId: q.id } })}
-            className="flex transform items-center gap-2 rounded-xl bg-[#FFD131] px-6 py-2.5 font-bold shadow-lg shadow-yellow-100/50 transition-all hover:bg-slate-900 hover:text-white active:scale-95"
+            className="flex transform items-center gap-2 rounded-xl bg-[#00A651] px-6 py-2.5 font-bold shadow-lg shadow-green-100/50 transition-all hover:bg-slate-900 hover:text-white active:scale-95"
           >
             <HelpCircle size={20} />
             <span>{t('profile.mistakes.explain')}</span>
@@ -347,7 +347,7 @@ const Profile = () => {
                     <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
                       <p className="mb-4 text-sm font-bold text-slate-400">{t('profile.photo.sectionTitle')}</p>
                       <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-center">
-                        <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-full border-4 border-[#FFD131] bg-slate-100">
+                        <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-full border-4 border-[#00A651] bg-slate-100">
                           <img
                             src={avatarDisplay}
                             alt=""
@@ -436,7 +436,7 @@ const Profile = () => {
                       <button
                         type="submit"
                         disabled={saving}
-                        className="w-full rounded-xl bg-[#FFD131] py-3.5 font-black text-slate-900 transition-colors hover:bg-slate-900 hover:text-white disabled:opacity-50 sm:w-auto sm:px-10"
+                        className="w-full rounded-xl bg-[#00A651] py-3.5 font-black text-slate-900 transition-colors hover:bg-slate-900 hover:text-white disabled:opacity-50 sm:w-auto sm:px-10"
                       >
                         {saving ? t('profile.form.saving') : t('profile.form.save')}
                       </button>

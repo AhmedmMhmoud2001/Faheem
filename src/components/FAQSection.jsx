@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+﻿import React, { useEffect, useMemo, useState } from 'react';
 import { ChevronDown, ChevronUp, DotIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import Container from './Container';
@@ -82,12 +82,12 @@ const FAQSection = () => {
                   onClick={() => setOpenIndex(openIndex === idx ? -1 : idx)}
                   className="w-full p-2 text-start flex items-center justify-between group"
                 >
-                  <span className="flex justify-between items-center w-full text-lg md:text-xl font-black text-slate-800 group-hover:text-yellow-500 transition-colors gap-2">
+                  <span className="flex justify-between items-center w-full text-lg md:text-xl font-black text-slate-800 group-hover:text-[#00A651] transition-colors gap-2">
                     <div className="flex items-center">
                       <DotIcon size={40} md:size={60} />
                       {faq.question}
                     </div>
-                    <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-blue-900 flex items-center justify-center text-slate-100 group-hover:bg-yellow-400 group-hover:text-slate-900 transition-all">
+                    <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-blue-900 flex items-center justify-center text-slate-100 group-hover:bg-[#00A651] group-hover:text-slate-900 transition-all">
                       {openIndex === idx ? <ChevronUp size={18} md:size={20} /> : <ChevronDown size={18} md:size={20} />}
                     </div>
                   </span>
@@ -106,7 +106,7 @@ const FAQSection = () => {
 
           <div className="flex-[0.8] text-start self-start lg:self-center">
             <h2 className="text-3xl md:text-4xl font-black text-slate-900 leading-tight mb-4">
-              <span className="text-[#FFD131]">{titleHighlight}</span>
+              <span className="text-[#00A651]">{titleHighlight}</span>
               {titleRest}
             </h2>
             <p className="text-slate-400 font-bold text-base md:text-lg mb-6 md:mb-8 max-w-md ms-auto whitespace-pre-wrap">

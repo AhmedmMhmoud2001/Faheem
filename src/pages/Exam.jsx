@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react';
+﻿import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import Container from '../components/Container';
-import { ChevronRight, ChevronLeft, CheckCircle2, XCircle } from 'lucide-react';
+import { ChevronRight, ChevronLeft } from 'lucide-react';
 import { api, getLearnerLang } from '../lib/api.js';
 import SubscriptionWall from '../components/SubscriptionWall.jsx';
 import { useEntitlement } from '../hooks/useEntitlement.js';
+import MathText from '../components/MathText.jsx';
 
 const Exam = () => {
     const navigate = useNavigate();
@@ -78,9 +79,6 @@ const Exam = () => {
 
     const showResult = Boolean(currentQ?.userAnswerIndex != null);
     const selectedAnswer = currentQ?.userAnswerIndex ?? null;
-    const isCorrect = Boolean(currentQ?.isCorrect);
-    const correctAnswerIndex =
-        currentQ?.correctIndex != null ? currentQ.correctIndex : null;
 
     const handleAnswerSelect = async (answerIndex) => {
         if (!attemptId || !currentQ || showResult) return;
@@ -105,6 +103,7 @@ const Exam = () => {
                 const { data } = await api.post(`/exams/attempts/${attemptId}/submit`);
                 navigate('/result', {
                     state: {
+                        attemptId,
                         score: data.score.correct,
                         totalQuestions: data.score.total,
                         correctCount: data.score.correct,
@@ -164,6 +163,7 @@ const Exam = () => {
                             const { data } = await api.post(`/exams/attempts/${attemptId}/submit`);
                             navigate('/result', {
                                 state: {
+                                    attemptId,
                                     score: data.score.correct,
                                     totalQuestions: data.score.total,
                                     correctCount: data.score.correct,
@@ -175,7 +175,7 @@ const Exam = () => {
                             navigate('/dashboard');
                         }
                     }}
-                    className="bg-[#FFD131] text-slate-900 px-6 py-3 rounded-xl font-black"
+                    className="bg-[#00A651] text-slate-900 px-6 py-3 rounded-xl font-black"
                 >
                     عرض النتيجة
                 </button>
@@ -211,8 +211,8 @@ const Exam = () => {
                                         i === currentQuestion
                                             ? 'bg-slate-900 text-white shadow-lg'
                                             : answered
-                                              ? 'bg-yellow-400 text-slate-900'
-                                              : 'bg-white text-slate-600 border border-slate-200 hover:border-yellow-400'
+                                              ? 'bg-[#00A651] text-slate-900'
+                                              : 'bg-white text-slate-600 border border-slate-200 hover:border-[#00A651]'
                                     }`}
                                 >
                                     {i + 1}
@@ -232,8 +232,12 @@ const Exam = () => {
                     <div className="flex-1">
                         <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100">
                             <div className="flex items-center gap-3 mb-6">
-                                <div className="w-3 h-3 bg-[#FFD131] rounded-full" />
-                                <h2 className="text-2xl font-black text-slate-900">{currentQ.stem}</h2>
+                                <div className="w-3 h-3 bg-[#00A651] rounded-full" />
+                                <MathText
+                                    value={currentQ.stem}
+                                    dir="rtl"
+                                    className="text-2xl font-black text-slate-900"
+                                />
                             </div>
 
                             <div className="bg-slate-100 rounded-[2rem] min-h-[200px] flex items-center justify-center p-6">
@@ -246,22 +250,13 @@ const Exam = () => {
                         <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100 space-y-4">
                             {(currentQ.options || []).map((option, idx) => {
                                 const isSelected = selectedAnswer === idx;
-                                const isCorrectAnswer =
-                                    showResult && correctAnswerIndex != null && idx === correctAnswerIndex;
                                 let bgColor = 'bg-white';
                                 let borderColor = 'border-slate-200';
 
-                                if (showResult) {
-                                    if (isCorrectAnswer) {
-                                        bgColor = 'bg-green-50';
-                                        borderColor = 'border-green-400';
-                                    } else if (isSelected && !isCorrectAnswer) {
-                                        bgColor = 'bg-pink-50';
-                                        borderColor = 'border-pink-400';
-                                    }
-                                } else if (isSelected) {
-                                    bgColor = 'bg-green-50';
-                                    borderColor = 'border-green-400';
+                                // Blind exam mode: do NOT reveal correctness while solving.
+                                if (isSelected) {
+                                    bgColor = 'bg-[#fffbeb]';
+                                    borderColor = 'border-[#00A651]';
                                 }
 
                                 return (
@@ -275,14 +270,14 @@ const Exam = () => {
                                         }`}
                                     >
                                         <div className="flex items-center justify-end gap-4">
-                                            <span className="text-slate-700 font-bold text-sm flex-1 text-right">
-                                                {option}
-                                            </span>
+                                            <MathText
+                                                value={option}
+                                                dir="rtl"
+                                                className="text-slate-700 font-bold text-sm flex-1 text-right"
+                                            />
                                             <div
                                                 className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-sm flex-shrink-0 ${
-                                                    isSelected || (showResult && isCorrectAnswer)
-                                                        ? 'bg-slate-900 text-white'
-                                                        : 'bg-slate-100 text-slate-600'
+                                                    isSelected ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600'
                                                 }`}
                                             >
                                                 {idx + 1}
@@ -291,58 +286,6 @@ const Exam = () => {
                                     </button>
                                 );
                             })}
-
-                            {showResult && (
-                                <div className="mt-6 space-y-4">
-                                    <div
-                                        className={`p-4 rounded-2xl ${
-                                            isCorrect
-                                                ? 'bg-green-50 border-2 border-green-400'
-                                                : 'bg-red-50 border-2 border-red-400'
-                                        }`}
-                                    >
-                                        <div className="flex items-center gap-3 mb-3">
-                                            {isCorrect ? (
-                                                <CheckCircle2 className="text-green-600" size={24} />
-                                            ) : (
-                                                <XCircle className="text-red-600" size={24} />
-                                            )}
-                                            <span
-                                                className={`font-black text-lg ${
-                                                    isCorrect ? 'text-green-900' : 'text-red-900'
-                                                }`}
-                                            >
-                                                {isCorrect ? 'الإجابة صحيحة' : 'الإجابة خاطئة'}
-                                            </span>
-                                        </div>
-                                        {!isCorrect && correctAnswerIndex != null && (
-                                            <div className="mt-4">
-                                                <p className="text-slate-700 font-black text-base mb-2">
-                                                    الإجابة الصحيحة :
-                                                </p>
-                                                <p className="text-slate-600 font-bold text-sm leading-relaxed mb-6">
-                                                    {(currentQ.options || [])[correctAnswerIndex]}
-                                                </p>
-
-                                                <button
-                                                    type="button"
-                                                    onClick={() =>
-                                                        navigate(`/explanation/${currentQ.id}`, {
-                                                            state: { questionId: currentQ.id },
-                                                        })
-                                                    }
-                                                    className="w-full flex items-center justify-center gap-2 bg-[#FFD131] hover:bg-slate-900 hover:text-white px-6 py-3 rounded-xl font-black text-lg transition-all shadow-lg shadow-yellow-200/50"
-                                                >
-                                                    <div className="p-1 border-2 border-current rounded-full">
-                                                        <ChevronLeft size={16} className="rotate-180" />
-                                                    </div>
-                                                    <span>الشرح</span>
-                                                </button>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            )}
                         </div>
                     </div>
                 </div>
