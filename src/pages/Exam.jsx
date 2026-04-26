@@ -2,12 +2,31 @@
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import Container from '../components/Container';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
-import { api, getLearnerLang } from '../lib/api.js';
+import { api, getLearnerLang, resolveMediaUrl } from '../lib/api.js';
 import SubscriptionWall from '../components/SubscriptionWall.jsx';
 import { useEntitlement } from '../hooks/useEntitlement.js';
 import MathText from '../components/MathText.jsx';
 
 const Exam = () => {
+    const normalizeOption = (option, idx, question) => {
+        const lang = getLearnerLang();
+        const letter = ['A', 'B', 'C', 'D'][idx] || 'A';
+        const legacyImage = lang === 'en'
+            ? question?.[`option${letter}ImageUrlEn`] || question?.[`option${letter}ImageUrl`]
+            : question?.[`option${letter}ImageUrl`] || question?.[`option${letter}ImageUrlEn`];
+        if (typeof option === 'string') {
+            return { text: option, imageUrl: legacyImage ? resolveMediaUrl(legacyImage) : null };
+        }
+        return {
+            text: option?.text ?? '',
+            imageUrl: option?.imageUrl
+                ? resolveMediaUrl(option.imageUrl)
+                : legacyImage
+                  ? resolveMediaUrl(legacyImage)
+                  : null,
+        };
+    };
+
     const navigate = useNavigate();
     const { subject, level } = useParams();
     const { hasAccess, trialDaysLeft } = useEntitlement();
@@ -249,6 +268,7 @@ const Exam = () => {
                     <div className="lg:w-96 flex-shrink-0">
                         <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100 space-y-4">
                             {(currentQ.options || []).map((option, idx) => {
+                                const normalized = normalizeOption(option, idx, currentQ);
                                 const isSelected = selectedAnswer === idx;
                                 let bgColor = 'bg-white';
                                 let borderColor = 'border-slate-200';
@@ -270,11 +290,20 @@ const Exam = () => {
                                         }`}
                                     >
                                         <div className="flex items-center justify-end gap-4">
-                                            <MathText
-                                                value={option}
-                                                dir="rtl"
-                                                className="text-slate-700 font-bold text-sm flex-1 text-right"
-                                            />
+                                            <div className="flex-1">
+                                                <MathText
+                                                    value={normalized.text}
+                                                    dir="rtl"
+                                                    className="text-slate-700 font-bold text-sm text-right"
+                                                />
+                                                {normalized.imageUrl && (
+                                                    <img
+                                                        src={normalized.imageUrl}
+                                                        alt=""
+                                                        className="mt-2 max-h-32 w-auto rounded-lg border border-slate-200 object-contain ms-auto"
+                                                    />
+                                                )}
+                                            </div>
                                             <div
                                                 className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-sm flex-shrink-0 ${
                                                     isSelected ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600'

@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Container from '../components/Container';
 import { ClipboardList, Check, X } from 'lucide-react';
-import { api } from '../lib/api.js';
+import { api, resolveMediaUrl } from '../lib/api.js';
 import MathText from '../components/MathText.jsx';
 
 const ExamResult = () => {
@@ -52,6 +52,24 @@ const ExamResult = () => {
 
     const percent = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
     const grade = percent >= 85 ? 'ممتاز' : percent >= 70 ? 'جيد جدًا' : percent >= 50 ? 'جيد' : 'يحتاج تحسين';
+    const normalizeOption = (option, idx, question) => {
+        const lang = i18n.language === 'en' ? 'en' : 'ar';
+        const letter = ['A', 'B', 'C', 'D'][idx] || 'A';
+        const legacyImage = lang === 'en'
+            ? question?.[`option${letter}ImageUrlEn`] || question?.[`option${letter}ImageUrl`]
+            : question?.[`option${letter}ImageUrl`] || question?.[`option${letter}ImageUrlEn`];
+        if (typeof option === 'string') {
+            return { text: option, imageUrl: legacyImage ? resolveMediaUrl(legacyImage) : null };
+        }
+        return {
+            text: option?.text ?? '',
+            imageUrl: option?.imageUrl
+                ? resolveMediaUrl(option.imageUrl)
+                : legacyImage
+                  ? resolveMediaUrl(legacyImage)
+                  : null,
+        };
+    };
 
     return (
         <div className="min-h-screen bg-slate-50 pt-32 pb-20 font-sans" dir={i18n.dir()}>
@@ -171,14 +189,14 @@ const ExamResult = () => {
                                 {wrongQuestions.map((q, idx) => {
                                     const userIdx = q.userAnswerIndex;
                                     const correctIdx = q.correctIndex;
-                                    const userText =
+                                    const userOption =
                                         userIdx == null
-                                            ? 'لم تُجب'
-                                            : (q.options || [])[userIdx] ?? '—';
-                                    const correctText =
+                                            ? { text: 'لم تُجب', imageUrl: null }
+                                            : normalizeOption((q.options || [])[userIdx] ?? '—', userIdx, q);
+                                    const correctOption =
                                         correctIdx == null
-                                            ? '—'
-                                            : (q.options || [])[correctIdx] ?? '—';
+                                            ? { text: '—', imageUrl: null }
+                                            : normalizeOption((q.options || [])[correctIdx] ?? '—', correctIdx, q);
                                     return (
                                         <div key={q.id || idx} className="rounded-[2rem] border border-slate-100 bg-white p-6 shadow-sm">
                                             <div className="flex items-start justify-between gap-4 mb-4">
@@ -195,11 +213,25 @@ const ExamResult = () => {
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                 <div className="rounded-2xl border border-red-100 bg-red-50 p-5">
                                                     <div className="font-black text-red-700 mb-2">إجابتك</div>
-                                                    <MathText value={userText} dir="rtl" className="font-bold text-slate-800" />
+                                                    <MathText value={userOption.text} dir="rtl" className="font-bold text-slate-800" />
+                                                    {userOption.imageUrl && (
+                                                        <img
+                                                            src={userOption.imageUrl}
+                                                            alt=""
+                                                            className="mt-3 max-h-36 w-auto rounded-lg border border-red-100 object-contain"
+                                                        />
+                                                    )}
                                                 </div>
                                                 <div className="rounded-2xl border border-green-100 bg-green-50 p-5">
                                                     <div className="font-black text-green-700 mb-2">الإجابة الصحيحة</div>
-                                                    <MathText value={correctText} dir="rtl" className="font-bold text-slate-800" />
+                                                    <MathText value={correctOption.text} dir="rtl" className="font-bold text-slate-800" />
+                                                    {correctOption.imageUrl && (
+                                                        <img
+                                                            src={correctOption.imageUrl}
+                                                            alt=""
+                                                            className="mt-3 max-h-36 w-auto rounded-lg border border-green-100 object-contain"
+                                                        />
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>

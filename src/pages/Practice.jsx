@@ -11,6 +11,25 @@ import MathText from '../components/MathText.jsx';
 const PRACTICE_LIMIT_FALLBACK = 5;
 
 const Practice = () => {
+    const normalizeOption = (option, idx, question) => {
+        const lang = getLearnerLang();
+        const letter = ['A', 'B', 'C', 'D'][idx] || 'A';
+        const legacyImage = lang === 'en'
+            ? question?.[`option${letter}ImageUrlEn`] || question?.[`option${letter}ImageUrl`]
+            : question?.[`option${letter}ImageUrl`] || question?.[`option${letter}ImageUrlEn`];
+        if (typeof option === 'string') {
+            return { text: option, imageUrl: legacyImage ? resolveMediaUrl(legacyImage) : null };
+        }
+        return {
+            text: option?.text ?? '',
+            imageUrl: option?.imageUrl
+                ? resolveMediaUrl(option.imageUrl)
+                : legacyImage
+                  ? resolveMediaUrl(legacyImage)
+                  : null,
+        };
+    };
+
     const navigate = useNavigate();
     const { subject, level } = useParams();
     const location = useLocation();
@@ -252,6 +271,7 @@ const Practice = () => {
 
                 <div className="space-y-4 mb-20">
                     {(currentQ.options || []).map((option, idx) => {
+                        const normalized = normalizeOption(option, idx, currentQ);
                         const isSelected = selectedAnswer === idx;
 
                         // Blind practice mode: do NOT reveal correctness while solving.
@@ -270,11 +290,20 @@ const Practice = () => {
                                 disabled={showResult}
                                 className={`w-full p-6 rounded-[2rem] flex items-center justify-between group transition-all duration-300 ${cardStyle} ${!showResult ? 'hover:border-slate-200' : ''}`}
                             >
-                                <MathText
-                                    value={option}
-                                    dir="rtl"
-                                    className="text-lg font-bold text-right flex-1 text-slate-700"
-                                />
+                                <div className="flex-1">
+                                    <MathText
+                                        value={normalized.text}
+                                        dir="rtl"
+                                        className="text-lg font-bold text-right text-slate-700"
+                                    />
+                                    {normalized.imageUrl && (
+                                        <img
+                                            src={normalized.imageUrl}
+                                            alt=""
+                                            className="mt-2 max-h-36 w-auto rounded-lg border border-slate-200 object-contain ms-auto"
+                                        />
+                                    )}
+                                </div>
                                 <div className="mr-6">
                                     <div
                                         className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-base transition-all ${numberStyle}`}
